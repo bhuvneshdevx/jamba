@@ -43,10 +43,13 @@
     <script src="firebase-config.js"></script>
     <script src="js/components/Navbar.js" defer></script>
     <script src="js/components/Footer.js" defer></script>
-    <script src="data.js"></script>
-    <script src="app.js"></script>
-    <script>
+    
+    <script type="module">
+        import { NEXSTUDY_DATA } from './js/modules/data.js';
+        import { initApp, getParam, ordinal } from './js/modules/app.js';
+
         document.addEventListener('DOMContentLoaded', async () => {
+            initApp();
             const yearNum = parseInt(getParam('year'));
             if (!yearNum) {
                 window.location.href = 'index.html';
@@ -73,12 +76,12 @@
             }
 
             const year = NEXSTUDY_DATA.years[yearNum];
-            const ordinals = { 1: '1st', 2: '2nd', 3: '3rd', 4: '4th' };
 
             // Update page
-            document.title = `${ordinals[yearNum]} Year — NexStudy`;
-            document.getElementById('yearBreadcrumb').textContent = `${ordinals[yearNum]} Year`;
-            document.getElementById('pageTitle').innerHTML = `${ordinals[yearNum]} Year — <span class="gradient-text">${year.name}</span>`;
+            const yearOrdinal = ordinal(yearNum);
+            document.title = `${yearOrdinal} Year — NexStudy`;
+            document.getElementById('yearBreadcrumb').textContent = `${yearOrdinal} Year`;
+            document.getElementById('pageTitle').innerHTML = `${yearOrdinal} Year — <span class="gradient-text">${year.name}</span>`;
             document.getElementById('pageDesc').textContent = year.description;
 
             // Get resource counts from Firestore for this year
@@ -148,9 +151,6 @@
             }
 
             container.innerHTML = html;
-
-            // Re-init scroll animations
-            initScrollAnimations();
 
             // Scroll to anchor if specified
             const hash = window.location.hash;

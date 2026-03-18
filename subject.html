@@ -41,7 +41,6 @@
 <body class="page-transition">
 
     <!-- Navigation -->
-    <!-- Navigation -->
     <app-navbar></app-navbar>
 
     <!-- Page Header -->
@@ -91,11 +90,11 @@
     </section>
 
     <!-- PDF Preview Modal -->
-    <div class="pdf-modal-overlay" id="pdfModal" onclick="closePdfPreview(event)">
+    <div class="pdf-modal-overlay" id="pdfModal">
         <div class="pdf-modal-card">
             <div class="pdf-modal-header">
                 <h3 id="pdfModalTitle">Resource Preview</h3>
-                <button class="close-modal-btn" onclick="closePdfPreview(event, true)">✕</button>
+                <button class="close-modal-btn" id="closeModalX">✕</button>
             </div>
             <div class="pdf-modal-body">
                 <iframe id="pdfIframe" src="" frameborder="0"></iframe>
@@ -103,7 +102,6 @@
         </div>
     </div>
 
-    <!-- Footer -->
     <!-- Footer -->
     <app-footer></app-footer>
 
@@ -113,9 +111,11 @@
     <script src="firebase-config.js"></script>
     <script src="js/components/Navbar.js" defer></script>
     <script src="js/components/Footer.js" defer></script>
-    <script src="data.js"></script>
-    <script src="app.js"></script>
-    <script>
+    
+    <script type="module">
+        import { NEXSTUDY_DATA } from './js/modules/data.js';
+        import { initApp, getParam, ordinal } from './js/modules/app.js';
+
         let currentResources = [];
         let customResourceTypes = [
             { id: 'notes', name: 'Lecture Notes', icon: '📄' },
@@ -124,7 +124,33 @@
             { id: 'syllabus', name: 'Syllabus', icon: '📋' }
         ];
 
+        window.openPdfPreview = (url, title) => {
+            if (!url || url === '#') { alert("No preview available."); return; }
+            document.getElementById('pdfModalTitle').textContent = title || "Resource Preview";
+            
+            let displayUrl = url;
+            if (url.includes('drive.google.com') && url.includes('/view')) {
+                displayUrl = url.replace('/view', '/preview');
+            }
+            
+            document.getElementById('pdfIframe').src = displayUrl;
+            document.getElementById('pdfModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        };
+
+        const closePdfPreview = (e, force = false) => {
+            if (force || e.target.id === 'pdfModal') {
+                document.getElementById('pdfModal').classList.remove('active');
+                document.getElementById('pdfIframe').src = "";
+                document.body.style.overflow = '';
+            }
+        };
+
+        document.getElementById('pdfModal').addEventListener('click', closePdfPreview);
+        document.getElementById('closeModalX').addEventListener('click', (e) => closePdfPreview(e, true));
+
         document.addEventListener('DOMContentLoaded', async () => {
+            initApp();
             const yearNum = parseInt(getParam('year'));
             const semNum = parseInt(getParam('sem'));
             const subjectId = getParam('subject');
@@ -134,7 +160,7 @@
                 return;
             }
 
-            // Load custom subjects before finding
+            // Load custom subjects
             try {
                 const snap = await db.collection('custom_subjects').get();
                 snap.forEach(doc => {
@@ -176,16 +202,16 @@
                 ).join('');
             }
 
-            const ordinals = { 1: '1st', 2: '2nd', 3: '3rd', 4: '4th' };
+            const yearOrdinal = ordinal(yearNum);
 
             // Update page info
             document.title = `${subject.name} — NexStudy`;
-            document.getElementById('yearLink').textContent = `${ordinals[yearNum]} Year`;
+            document.getElementById('yearLink').textContent = `${yearOrdinal} Year`;
             document.getElementById('yearLink').href = `year.html?year=${yearNum}`;
             document.getElementById('semBreadcrumb').textContent = semester.name;
             document.getElementById('subjectBreadcrumb').textContent = subject.name;
             document.getElementById('pageTitle').innerHTML = `${subject.icon} ${subject.name}`;
-            document.getElementById('pageDesc').textContent = `${subject.code} • ${ordinals[yearNum]} Year • ${semester.name}`;
+            document.getElementById('pageDesc').textContent = `${subject.code} • ${yearOrdinal} Year • ${semester.name}`;
 
             // Load resources from Firestore
             try {
@@ -200,20 +226,14 @@
                     currentResources.push({ id: doc.id, ...doc.data() });
                 });
 
-                // Sort by date client-side (newest first)
-                currentResources.sort((a, b) => {
-                    const ta = a.createdAt?.seconds || 0;
-                    const tb = b.createdAt?.seconds || 0;
-                    return tb - ta;
-                });
+                currentResources.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
 
                 document.getElementById('pageDesc').textContent =
-                    `${subject.code} • ${ordinals[yearNum]} Year • ${semester.name} — ${currentResources.length} resource${currentResources.length !== 1 ? 's' : ''}`;
+                    `${subject.code} • ${yearOrdinal} Year • ${semester.name} — ${currentResources.length} resource${currentResources.length !== 1 ? 's' : ''}`;
 
             } catch (err) {
                 document.getElementById('loadingState').innerHTML =
-                    `<p style="font-size:2rem; margin-bottom:16px;">⚠️</p><p style="color:var(--text-muted);">Could not load resources. Check Firebase config.</p>`;
-                console.error('Firestore error:', err);
+                    `<p style="font-size:2rem; margin-bottom:16px;">⚠️</p><p style="color:var(--text-muted);">Could not load resources.</p>`;
             }
 
             // Filter buttons
@@ -226,7 +246,6 @@
                 });
             });
             
-            // Set initial filter to first type
             if (customResourceTypes.length > 0) {
                 document.getElementById('loadingState').style.display = 'none';
                 renderResources(currentResources, customResourceTypes[0].id);
@@ -276,7 +295,7 @@
                             </div>
                             <div style="display: flex; gap: 8px;">
                                 <button class="resource-download-btn" onclick="openPdfPreview('${resource.fileUrl || resource.driveLink || ''}', '${resource.title.replace(/'/g, "\\'")}')" style="background: rgba(99, 102, 241, 0.1); color: var(--accent-1); border: 1px solid rgba(99, 102, 241, 0.2);">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11-8 11-8 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                                     Preview
                                 </button>
                                 <a href="${resource.fileUrl || resource.driveLink || '#'}" target="_blank" rel="noopener" class="resource-download-btn" style="width: auto; padding-left: 10px; padding-right: 10px;" title="Download">
@@ -287,34 +306,6 @@
                     </div>
                 `;
             }).join('');
-
-            initScrollAnimations();
-        }
-
-        function openPdfPreview(url, title) {
-            if (!url || url === '#') { alert("No preview available."); return; }
-            document.getElementById('pdfModalTitle').textContent = title || "Resource Preview";
-            
-            let displayUrl = url;
-            
-            // If it's a Google Drive link, convert to preview
-            if (url.includes('drive.google.com') && url.includes('/view')) {
-                displayUrl = url.replace('/view', '/preview');
-            }
-            // For Cloudinary PDFs, avoid downloading by just pointing the iframe directly at it.
-            // Modern browsers have a built-in dark PDF viewer that handles this perfectly.
-            
-            document.getElementById('pdfIframe').src = displayUrl;
-            document.getElementById('pdfModal').classList.add('active');
-            document.body.style.overflow = 'hidden'; // Stop background scrolling
-        }
-
-        function closePdfPreview(e, force = false) {
-            if (force || e.target.id === 'pdfModal') {
-                document.getElementById('pdfModal').classList.remove('active');
-                document.getElementById('pdfIframe').src = "";
-                document.body.style.overflow = '';
-            }
         }
     </script>
 </body>

@@ -98,103 +98,71 @@
                 <a href="year.html?year=1" class="year-card" data-year="1">
                     <div class="year-card-bg"></div>
                     <div class="year-card-content">
-                        <div class="year-number">1<sup>st</sup></div>
-                        <h3>First Year</h3>
-                        <p>Semester 1 & 2</p>
-                        <div class="year-subjects">
-                            <span>Common Courses</span>
-                        </div>
-                        <div class="year-card-arrow">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                        </div>
+                        <div class="year-icon">01</div>
+                        <h3>1st Year</h3>
+                        <p>Common to all branches</p>
                     </div>
                 </a>
                 <a href="year.html?year=2" class="year-card" data-year="2">
                     <div class="year-card-bg"></div>
                     <div class="year-card-content">
-                        <div class="year-number">2<sup>nd</sup></div>
-                        <h3>Second Year</h3>
-                        <p>Semester 3 & 4</p>
-                        <div class="year-subjects">
-                            <span>Core Subjects</span>
-                        </div>
-                        <div class="year-card-arrow">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                        </div>
+                        <div class="year-icon">02</div>
+                        <h3>2nd Year</h3>
+                        <p>Core branch subjects</p>
                     </div>
                 </a>
                 <a href="year.html?year=3" class="year-card" data-year="3">
                     <div class="year-card-bg"></div>
                     <div class="year-card-content">
-                        <div class="year-number">3<sup>rd</sup></div>
-                        <h3>Third Year</h3>
-                        <p>Semester 5 & 6</p>
-                        <div class="year-subjects">
-                            <span>Advanced Subjects</span>
-                        </div>
-                        <div class="year-card-arrow">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                        </div>
+                        <div class="year-icon">03</div>
+                        <h3>3rd Year</h3>
+                        <p>Advanced specialization</p>
                     </div>
                 </a>
                 <a href="year.html?year=4" class="year-card" data-year="4">
                     <div class="year-card-bg"></div>
                     <div class="year-card-content">
-                        <div class="year-number">4<sup>th</sup></div>
-                        <h3>Fourth Year</h3>
-                        <p>Semester 7 & 8</p>
-                        <div class="year-subjects">
-                            <span>Electives & Projects</span>
-                        </div>
-                        <div class="year-card-arrow">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                        </div>
+                        <div class="year-icon">04</div>
+                        <h3>4th Year</h3>
+                        <p>Electives & Projects</p>
                     </div>
                 </a>
             </div>
         </div>
     </section>
 
-    <!-- Branches Section -->
+    <!-- Branch Selection -->
     <section class="branches-section" id="branches">
         <div class="container">
             <div class="section-header">
-                <span class="section-tag">Branches</span>
-                <h2 class="section-title">All <span class="gradient-text">Branches</span> Covered</h2>
-                <p class="section-desc">CSE, ECE, ME, CE, EE, and more — pick your branch.</p>
+                <span class="section-tag">Support for All</span>
+                <h2 class="section-title">Top <span class="gradient-text">Branches</span></h2>
+                <p class="section-desc">Resources available for all major engineering disciplines.</p>
             </div>
-            <div class="branches-grid">
+            <div class="branches-flex" id="branchesFlex">
                 <div class="branch-chip" data-branch="cse">
                     <span class="branch-icon">💻</span>
-                    <span>Computer Science (CSE)</span>
+                    <span>Computer Science</span>
                 </div>
                 <div class="branch-chip" data-branch="ece">
                     <span class="branch-icon">📡</span>
-                    <span>Electronics & Comm (ECE)</span>
+                    <span>Electronics</span>
                 </div>
                 <div class="branch-chip" data-branch="me">
                     <span class="branch-icon">⚙️</span>
-                    <span>Mechanical (ME)</span>
+                    <span>Mechanical</span>
                 </div>
                 <div class="branch-chip" data-branch="ce">
                     <span class="branch-icon">🏗️</span>
-                    <span>Civil (CE)</span>
+                    <span>Civil</span>
                 </div>
                 <div class="branch-chip" data-branch="ee">
                     <span class="branch-icon">⚡</span>
-                    <span>Electrical (EE)</span>
+                    <span>Electrical</span>
                 </div>
                 <div class="branch-chip" data-branch="it">
                     <span class="branch-icon">🌐</span>
-                    <span>Information Tech (IT)</span>
-                </div>
-                <div class="branch-chip" data-branch="che">
-                    <span class="branch-icon">🧪</span>
-                    <span>Chemical Engg</span>
-                </div>
-                <div class="branch-chip" data-branch="bio">
-                    <span class="branch-icon">🧬</span>
-                    <span>Biotech / Biomedical</span>
+                    <span>IT</span>
                 </div>
                 <div class="branch-chip" data-branch="aero">
                     <span class="branch-icon">✈️</span>
@@ -249,7 +217,10 @@
     <script src="firebase-config.js"></script>
     <script src="js/components/Navbar.js" defer></script>
     <script src="js/components/Footer.js" defer></script>
-    <script src="data.js"></script>
-    <script src="app.js"></script>
+    
+    <script type="module">
+        import { initApp } from './js/modules/app.js';
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
 </body>
 </html>

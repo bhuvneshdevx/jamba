@@ -2,14 +2,16 @@
    NexStudy — Main Application Logic
    ============================================= */
 
-document.addEventListener('DOMContentLoaded', () => {
+import { getAllSubjects, getAllResources } from './data.js';
+
+export function initApp() {
     initNavbar();
     initMobileMenu();
     initSearch();
     initCounters();
     initScrollAnimations();
     initBackToTop();
-});
+}
 
 /* ---- Navbar Scroll Effect ---- */
 function initNavbar() {
@@ -232,13 +234,13 @@ function initBackToTop() {
 }
 
 /* ---- Utility: Get URL parameters ---- */
-function getParam(name) {
+export function getParam(name) {
     const params = new URLSearchParams(window.location.search);
     return params.get(name);
 }
 
 /* ---- Utility: Ordinal suffix ---- */
-function ordinal(n) {
+export function ordinal(n) {
     const s = ['th', 'st', 'nd', 'rd'];
     const v = n % 100;
     return n + (s[(v - 20) % 10] || s[v] || s[0]);
