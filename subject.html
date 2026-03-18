@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subject Resources — NexStudy</title>
+    <meta name="description" content="Download notes, previous year papers, and handwritten notes for your engineering subject.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .pdf-modal-overlay {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(8px); z-index: 9999; justify-content: center; align-items: center;
+            padding: 20px;
+        }
+        .pdf-modal-overlay.active { display: flex; }
+        .pdf-modal-card {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl); width: 100%; max-width: 900px;
+            height: 85vh; display: flex; flex-direction: column; overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+        .pdf-modal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 16px 24px; border-bottom: 1px solid var(--border-color);
+            background: var(--bg-glass);
+        }
+        .pdf-modal-header h3 { font-family: var(--font-heading); font-size: 1.1rem; margin: 0; }
+        .close-modal-btn {
+            width: 32px; height: 32px; border-radius: 50%; border: none;
+            background: rgba(255,255,255,0.1); color: white; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; transition: background 0.2s;
+        }
+        .close-modal-btn:hover { background: #ef4444; }
+        .pdf-modal-body { flex: 1; background: #111; position: relative; }
+        .pdf-modal-body iframe { width: 100%; height: 100%; border: none; }
+    </style>
+</head>
+<body class="page-transition">
+
+    <!-- Navigation -->
+    <!-- Navigation -->
+    <app-navbar></app-navbar>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <div class="breadcrumb" id="breadcrumb">
+                <a href="index.html">Home</a>
+                <span class="separator">/</span>
+                <a href="#" id="yearLink">Year</a>
+                <span class="separator">/</span>
+                <span id="semBreadcrumb">Semester</span>
+                <span class="separator">/</span>
+                <span class="current" id="subjectBreadcrumb">Subject</span>
+            </div>
+            <h1 class="page-title" id="pageTitle">Loading...</h1>
+            <p class="page-desc" id="pageDesc">Loading...</p>
+        </div>
+    </section>
+
+    <!-- Resources -->
+    <section class="container">
+        <!-- Filter Buttons -->
+        <div class="resources-filter" id="filterBtns">
+            <button class="filter-btn active" data-filter="notes">📄 Lecture Notes</button>
+            <button class="filter-btn" data-filter="handwritten">✏️ Handwritten</button>
+            <button class="filter-btn" data-filter="pyq">📝 PYQ Papers</button>
+            <button class="filter-btn" data-filter="syllabus">📋 Syllabus</button>
+        </div>
+
+        <!-- Resources Grid -->
+        <div class="resources-grid" id="resourcesGrid">
+            <!-- Dynamic content -->
+        </div>
+
+        <!-- Loading state -->
+        <div id="loadingState" style="text-align:center; padding: 60px 20px;">
+            <p style="font-size: 2rem; margin-bottom: 16px;">⏳</p>
+            <p style="color: var(--text-muted);">Loading resources...</p>
+        </div>
+
+        <!-- Empty state -->
+        <div id="emptyState" style="display:none; text-align:center; padding: 60px 20px;">
+            <p style="font-size: 3rem; margin-bottom: 16px;">📭</p>
+            <h3 style="font-family: var(--font-heading); margin-bottom: 8px;">No resources yet</h3>
+            <p style="color: var(--text-muted);">Resources for this subject haven't been uploaded yet.</p>
+        </div>
+    </section>
+
+    <!-- PDF Preview Modal -->
+    <div class="pdf-modal-overlay" id="pdfModal" onclick="closePdfPreview(event)">
+        <div class="pdf-modal-card">
+            <div class="pdf-modal-header">
+                <h3 id="pdfModalTitle">Resource Preview</h3>
+                <button class="close-modal-btn" onclick="closePdfPreview(event, true)">✕</button>
+            </div>
+            <div class="pdf-modal-body">
+                <iframe id="pdfIframe" src="" frameborder="0"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <!-- Footer -->
+    <app-footer></app-footer>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="js/components/Navbar.js" defer></script>
+    <script src="js/components/Footer.js" defer></script>
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+    <script>
+        let currentResources = [];
+        let customResourceTypes = [
+            { id: 'notes', name: 'Lecture Notes', icon: '📄' },
+            { id: 'handwritten', name: 'Handwritten', icon: '✏️' },
+            { id: 'pyq', name: 'PYQ Papers', icon: '📝' },
+            { id: 'syllabus', name: 'Syllabus', icon: '📋' }
+        ];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const yearNum = parseInt(getParam('year'));
+            const semNum = parseInt(getParam('sem'));
+            const subjectId = getParam('subject');
+
+            if (!yearNum || !semNum || !subjectId) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Load custom subjects before finding
+            try {
+                const snap = await db.collection('custom_subjects').get();
+                snap.forEach(doc => {
+                    const cs = doc.data();
+                    const y = NEXSTUDY_DATA.years[cs.year];
+                    if (y && y.semesters[cs.semester]) {
+                        if (!y.semesters[cs.semester].subjects.find(s => s.id === cs.id)) {
+                            y.semesters[cs.semester].subjects.push({ id: cs.id, name: cs.name, code: cs.code, icon: cs.icon, resources: [] });
+                        }
+                    }
+                });
+            } catch(e) { console.error('Error loading custom subjects', e); }
+
+            const year = NEXSTUDY_DATA.years[yearNum];
+            if (!year) { window.location.href = 'index.html'; return; }
+
+            const semester = year.semesters[semNum];
+            if (!semester) { window.location.href = `year.html?year=${yearNum}`; return; }
+
+            const subject = semester.subjects.find(s => s.id === subjectId);
+            if (!subject) { window.location.href = `year.html?year=${yearNum}`; return; }
+
+            // Load custom resource types
+            try {
+                const typesSnap = await db.collection('resource_types').get();
+                typesSnap.forEach(doc => {
+                    const d = doc.data();
+                    if (!customResourceTypes.find(t => t.id === d.id)) {
+                        customResourceTypes.push(d);
+                    }
+                });
+            } catch (err) { console.error('Error loading types', err); }
+
+            // Render filter buttons dynamically
+            const filterBtnsContainer = document.getElementById('filterBtns');
+            if (filterBtnsContainer) {
+                filterBtnsContainer.innerHTML = customResourceTypes.map((t, i) => 
+                    `<button class="filter-btn ${i === 0 ? 'active' : ''}" data-filter="${t.id}">${t.icon} ${t.name}</button>`
+                ).join('');
+            }
+
+            const ordinals = { 1: '1st', 2: '2nd', 3: '3rd', 4: '4th' };
+
+            // Update page info
+            document.title = `${subject.name} — NexStudy`;
+            document.getElementById('yearLink').textContent = `${ordinals[yearNum]} Year`;
+            document.getElementById('yearLink').href = `year.html?year=${yearNum}`;
+            document.getElementById('semBreadcrumb').textContent = semester.name;
+            document.getElementById('subjectBreadcrumb').textContent = subject.name;
+            document.getElementById('pageTitle').innerHTML = `${subject.icon} ${subject.name}`;
+            document.getElementById('pageDesc').textContent = `${subject.code} • ${ordinals[yearNum]} Year • ${semester.name}`;
+
+            // Load resources from Firestore
+            try {
+                const snapshot = await db.collection('resources')
+                    .where('year', '==', yearNum)
+                    .where('semester', '==', semNum)
+                    .where('subjectId', '==', subjectId)
+                    .get();
+
+                currentResources = [];
+                snapshot.forEach(doc => {
+                    currentResources.push({ id: doc.id, ...doc.data() });
+                });
+
+                // Sort by date client-side (newest first)
+                currentResources.sort((a, b) => {
+                    const ta = a.createdAt?.seconds || 0;
+                    const tb = b.createdAt?.seconds || 0;
+                    return tb - ta;
+                });
+
+                document.getElementById('pageDesc').textContent =
+                    `${subject.code} • ${ordinals[yearNum]} Year • ${semester.name} — ${currentResources.length} resource${currentResources.length !== 1 ? 's' : ''}`;
+
+            } catch (err) {
+                document.getElementById('loadingState').innerHTML =
+                    `<p style="font-size:2rem; margin-bottom:16px;">⚠️</p><p style="color:var(--text-muted);">Could not load resources. Check Firebase config.</p>`;
+                console.error('Firestore error:', err);
+            }
+
+            // Filter buttons
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    renderResources(currentResources, btn.dataset.filter);
+                });
+            });
+            
+            // Set initial filter to first type
+            if (customResourceTypes.length > 0) {
+                document.getElementById('loadingState').style.display = 'none';
+                renderResources(currentResources, customResourceTypes[0].id);
+            }
+        });
+
+        function renderResources(resources, filter) {
+            const grid = document.getElementById('resourcesGrid');
+            const emptyState = document.getElementById('emptyState');
+
+            const filtered = resources.filter(r => r.type === filter);
+
+            if (filtered.length === 0) {
+                grid.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            grid.style.display = '';
+            emptyState.style.display = 'none';
+
+            const typeLabels = {};
+            const typeIcons = {};
+            customResourceTypes.forEach(t => {
+                typeLabels[t.id] = t.name;
+                typeIcons[t.id] = t.icon;
+            });
+
+            grid.innerHTML = filtered.map(resource => {
+                const dateStr = resource.createdAt
+                    ? new Date(resource.createdAt.seconds * 1000).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' })
+                    : '';
+
+                return `
+                    <div class="resource-card" data-type="${resource.type}">
+                        <div class="resource-card-top">
+                            <span class="resource-type-badge ${resource.type}">${typeLabels[resource.type] || resource.type}</span>
+                            <div class="resource-file-icon">${typeIcons[resource.type] || '📄'}</div>
+                        </div>
+                        <h4>${resource.title}</h4>
+                        <p class="resource-desc">${resource.desc || ''}</p>
+                        <div class="resource-card-meta">
+                            <div class="resource-meta-left">
+                                ${resource.size ? `<span>${resource.size}</span>` : ''}
+                                ${resource.format ? `<span>${resource.format}</span>` : ''}
+                                ${dateStr ? `<span>${dateStr}</span>` : ''}
+                            </div>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="resource-download-btn" onclick="openPdfPreview('${resource.fileUrl || resource.driveLink || ''}', '${resource.title.replace(/'/g, "\\'")}')" style="background: rgba(99, 102, 241, 0.1); color: var(--accent-1); border: 1px solid rgba(99, 102, 241, 0.2);">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    Preview
+                                </button>
+                                <a href="${resource.fileUrl || resource.driveLink || '#'}" target="_blank" rel="noopener" class="resource-download-btn" style="width: auto; padding-left: 10px; padding-right: 10px;" title="Download">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            initScrollAnimations();
+        }
+
+        function openPdfPreview(url, title) {
+            if (!url || url === '#') { alert("No preview available."); return; }
+            document.getElementById('pdfModalTitle').textContent = title || "Resource Preview";
+            
+            let displayUrl = url;
+            
+            // If it's a Google Drive link, convert to preview
+            if (url.includes('drive.google.com') && url.includes('/view')) {
+                displayUrl = url.replace('/view', '/preview');
+            }
+            // For Cloudinary PDFs, avoid downloading by just pointing the iframe directly at it.
+            // Modern browsers have a built-in dark PDF viewer that handles this perfectly.
+            
+            document.getElementById('pdfIframe').src = displayUrl;
+            document.getElementById('pdfModal').classList.add('active');
+            document.body.style.overflow = 'hidden'; // Stop background scrolling
+        }
+
+        function closePdfPreview(e, force = false) {
+            if (force || e.target.id === 'pdfModal') {
+                document.getElementById('pdfModal').classList.remove('active');
+                document.getElementById('pdfIframe').src = "";
+                document.body.style.overflow = '';
+            }
+        }
+    </script>
+</body>
+</html>

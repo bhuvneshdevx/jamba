@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Semester — NexStudy</title>
+    <meta name="description" content="Choose your semester to access subject-wise study materials, notes, and previous year papers.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="page-transition">
+
+    <!-- Navigation -->
+    <app-navbar></app-navbar>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <div class="breadcrumb" id="breadcrumb">
+                <a href="index.html">Home</a>
+                <span class="separator">/</span>
+                <span class="current" id="yearBreadcrumb">Loading...</span>
+            </div>
+            <h1 class="page-title" id="pageTitle">Loading...</h1>
+            <p class="page-desc" id="pageDesc">Loading...</p>
+        </div>
+    </section>
+
+    <!-- Semesters Content -->
+    <section class="container">
+        <div id="semesterContent" class="semester-grid">
+            <!-- Dynamic content -->
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <app-footer></app-footer>
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="js/components/Navbar.js" defer></script>
+    <script src="js/components/Footer.js" defer></script>
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const yearNum = parseInt(getParam('year'));
+            if (!yearNum) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Load custom subjects
+            try {
+                const snap = await db.collection('custom_subjects').where('year', '==', yearNum).get();
+                snap.forEach(doc => {
+                    const cs = doc.data();
+                    const y = NEXSTUDY_DATA.years[cs.year];
+                    if (y && y.semesters[cs.semester]) {
+                        if (!y.semesters[cs.semester].subjects.find(s => s.id === cs.id)) {
+                            y.semesters[cs.semester].subjects.push({ id: cs.id, name: cs.name, code: cs.code, icon: cs.icon, resources: [] });
+                        }
+                    }
+                });
+            } catch(e) { console.error('Error loading custom subjects', e); }
+
+            if (!NEXSTUDY_DATA.years[yearNum]) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const year = NEXSTUDY_DATA.years[yearNum];
+            const ordinals = { 1: '1st', 2: '2nd', 3: '3rd', 4: '4th' };
+
+            // Update page
+            document.title = `${ordinals[yearNum]} Year — NexStudy`;
+            document.getElementById('yearBreadcrumb').textContent = `${ordinals[yearNum]} Year`;
+            document.getElementById('pageTitle').innerHTML = `${ordinals[yearNum]} Year — <span class="gradient-text">${year.name}</span>`;
+            document.getElementById('pageDesc').textContent = year.description;
+
+            // Get resource counts from Firestore for this year
+            let resourceCounts = {};
+            try {
+                const snapshot = await db.collection('resources')
+                    .where('year', '==', yearNum)
+                    .get();
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const key = `${data.subjectId}-${data.type}`;
+                    if (!resourceCounts[data.subjectId]) {
+                        resourceCounts[data.subjectId] = { total: 0, notes: 0, handwritten: 0, pyq: 0, syllabus: 0 };
+                    }
+                    resourceCounts[data.subjectId].total++;
+                    if (resourceCounts[data.subjectId][data.type] !== undefined) {
+                        resourceCounts[data.subjectId][data.type]++;
+                    }
+                });
+            } catch (err) {
+                console.error('Could not load resource counts:', err);
+            }
+
+            // Render semesters
+            const container = document.getElementById('semesterContent');
+            let html = '';
+
+            for (const [semNum, semester] of Object.entries(year.semesters)) {
+                html += `
+                    <div class="semester-card" id="sem-${semNum}">
+                        <div class="semester-card-header">
+                            <h3>${semester.name}</h3>
+                            <span class="sem-badge">${semester.subjects.length} Subjects</span>
+                        </div>
+                        <div class="semester-subjects">
+                `;
+
+                semester.subjects.forEach(subject => {
+                    const counts = resourceCounts[subject.id] || { total: 0, notes: 0, handwritten: 0, pyq: 0 };
+                    const noteCount = counts.notes + counts.handwritten;
+                    const pyqCount = counts.pyq;
+                    const countText = counts.total > 0
+                        ? `${subject.code} • ${noteCount} Notes • ${pyqCount} PYQs`
+                        : `${subject.code}`;
+
+                    html += `
+                        <a href="subject.html?year=${yearNum}&sem=${semNum}&subject=${subject.id}" class="subject-item">
+                            <div class="subject-item-left">
+                                <div class="subject-icon">${subject.icon}</div>
+                                <div class="subject-info">
+                                    <h4>${subject.name}</h4>
+                                    <p>${countText}</p>
+                                </div>
+                            </div>
+                            <div class="subject-arrow">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+                            </div>
+                        </a>
+                    `;
+                });
+
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+
+            // Re-init scroll animations
+            initScrollAnimations();
+
+            // Scroll to anchor if specified
+            const hash = window.location.hash;
+            if (hash) {
+                setTimeout(() => {
+                    const target = document.querySelector(hash);
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }, 300);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexStudy — Engineering Study Hub | Notes, PYQs & More</title>
+    <meta name="description" content="Your one-stop destination for engineering notes, previous year papers, handwritten notes, and study materials for all years and semesters.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- Navigation -->
+    <app-navbar></app-navbar>
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <div class="hero-bg-effects">
+            <div class="hero-orb hero-orb-1"></div>
+            <div class="hero-orb hero-orb-2"></div>
+            <div class="hero-orb hero-orb-3"></div>
+            <div class="hero-grid"></div>
+        </div>
+        <div class="hero-content">
+            <h1 class="hero-title animate-fade-up delay-1">
+                Notes, PYQs &<br>
+                <span class="gradient-text">Study Material</span><br>
+                for Engineers
+            </h1>
+            <p class="hero-subtitle animate-fade-up delay-2">
+                Lecture notes, handwritten notes, previous year papers, and syllabi —<br>
+                organized by year, semester, and branch. Just pick and download.
+            </p>
+            <div class="hero-cta animate-fade-up delay-3">
+                <a href="#years" class="btn btn-primary btn-lg">
+                    <span>Browse by Year</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                </a>
+                <a href="#features" class="btn btn-glass btn-lg">
+                    <span>See What's Available</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Resource Types -->
+    <section class="resource-types" id="features">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Resources</span>
+                <h2 class="section-title">What's <span class="gradient-text">Available</span></h2>
+                <p class="section-desc">Notes, handwritten notes, PYQs, and syllabi — sorted by subject.</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card" data-tilt>
+                    <div class="feature-icon" style="--accent: #6366f1;">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/><path d="M8 7h6"/><path d="M8 11h8"/></svg>
+                    </div>
+                    <h3>Lecture Notes</h3>
+                    <p>Comprehensive typed notes covering every topic from your syllabus. Well-organized and easy to understand.</p>
+                </div>
+                <div class="feature-card" data-tilt>
+                    <div class="feature-icon" style="--accent: #ec4899;">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+                    </div>
+                    <h3>Handwritten Notes</h3>
+                    <p>Curated handwritten notes from toppers. Perfect for last-minute revision with diagrams and shortcuts.</p>
+                </div>
+                <div class="feature-card" data-tilt>
+                    <div class="feature-icon" style="--accent: #f59e0b;">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+                    </div>
+                    <h3>Previous Year Papers</h3>
+                    <p>Extensive collection of PYQs with solutions. Know the exam pattern and practice with real questions.</p>
+                </div>
+                <div class="feature-card" data-tilt>
+                    <div class="feature-icon" style="--accent: #10b981;">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                    </div>
+                    <h3>Syllabus & Roadmaps</h3>
+                    <p>Complete syllabus breakdowns with study roadmaps. Plan your preparation effectively.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Year Selection -->
+    <section class="years-section" id="years">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Browse by Year</span>
+                <h2 class="section-title">Pick Your <span class="gradient-text">Year</span></h2>
+                <p class="section-desc">Select your year to see semester-wise subjects and resources.</p>
+            </div>
+            <div class="years-grid">
+                <a href="year.html?year=1" class="year-card" data-year="1">
+                    <div class="year-card-bg"></div>
+                    <div class="year-card-content">
+                        <div class="year-number">1<sup>st</sup></div>
+                        <h3>First Year</h3>
+                        <p>Semester 1 & 2</p>
+                        <div class="year-subjects">
+                            <span>Common Courses</span>
+                        </div>
+                        <div class="year-card-arrow">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        </div>
+                    </div>
+                </a>
+                <a href="year.html?year=2" class="year-card" data-year="2">
+                    <div class="year-card-bg"></div>
+                    <div class="year-card-content">
+                        <div class="year-number">2<sup>nd</sup></div>
+                        <h3>Second Year</h3>
+                        <p>Semester 3 & 4</p>
+                        <div class="year-subjects">
+                            <span>Core Subjects</span>
+                        </div>
+                        <div class="year-card-arrow">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        </div>
+                    </div>
+                </a>
+                <a href="year.html?year=3" class="year-card" data-year="3">
+                    <div class="year-card-bg"></div>
+                    <div class="year-card-content">
+                        <div class="year-number">3<sup>rd</sup></div>
+                        <h3>Third Year</h3>
+                        <p>Semester 5 & 6</p>
+                        <div class="year-subjects">
+                            <span>Advanced Subjects</span>
+                        </div>
+                        <div class="year-card-arrow">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        </div>
+                    </div>
+                </a>
+                <a href="year.html?year=4" class="year-card" data-year="4">
+                    <div class="year-card-bg"></div>
+                    <div class="year-card-content">
+                        <div class="year-number">4<sup>th</sup></div>
+                        <h3>Fourth Year</h3>
+                        <p>Semester 7 & 8</p>
+                        <div class="year-subjects">
+                            <span>Electives & Projects</span>
+                        </div>
+                        <div class="year-card-arrow">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Branches Section -->
+    <section class="branches-section" id="branches">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Branches</span>
+                <h2 class="section-title">All <span class="gradient-text">Branches</span> Covered</h2>
+                <p class="section-desc">CSE, ECE, ME, CE, EE, and more — pick your branch.</p>
+            </div>
+            <div class="branches-grid">
+                <div class="branch-chip" data-branch="cse">
+                    <span class="branch-icon">💻</span>
+                    <span>Computer Science (CSE)</span>
+                </div>
+                <div class="branch-chip" data-branch="ece">
+                    <span class="branch-icon">📡</span>
+                    <span>Electronics & Comm (ECE)</span>
+                </div>
+                <div class="branch-chip" data-branch="me">
+                    <span class="branch-icon">⚙️</span>
+                    <span>Mechanical (ME)</span>
+                </div>
+                <div class="branch-chip" data-branch="ce">
+                    <span class="branch-icon">🏗️</span>
+                    <span>Civil (CE)</span>
+                </div>
+                <div class="branch-chip" data-branch="ee">
+                    <span class="branch-icon">⚡</span>
+                    <span>Electrical (EE)</span>
+                </div>
+                <div class="branch-chip" data-branch="it">
+                    <span class="branch-icon">🌐</span>
+                    <span>Information Tech (IT)</span>
+                </div>
+                <div class="branch-chip" data-branch="che">
+                    <span class="branch-icon">🧪</span>
+                    <span>Chemical Engg</span>
+                </div>
+                <div class="branch-chip" data-branch="bio">
+                    <span class="branch-icon">🧬</span>
+                    <span>Biotech / Biomedical</span>
+                </div>
+                <div class="branch-chip" data-branch="aero">
+                    <span class="branch-icon">✈️</span>
+                    <span>Aerospace</span>
+                </div>
+                <div class="branch-chip" data-branch="auto">
+                    <span class="branch-icon">🚗</span>
+                    <span>Automobile</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how-it-works">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Simple & Easy</span>
+                <h2 class="section-title">How It <span class="gradient-text">Works</span></h2>
+            </div>
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-number">01</div>
+                    <h3>Select Your Year</h3>
+                    <p>Choose from 1st to 4th year to narrow down resources.</p>
+                </div>
+                <div class="step-connector">
+                    <svg width="40" height="24" viewBox="0 0 40 24" fill="none" stroke="currentColor" stroke-width="2" opacity="0.3"><path d="M0 12h36"/><path d="m30 6 6 6-6 6"/></svg>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">02</div>
+                    <h3>Pick Your Semester</h3>
+                    <p>Select the semester to see available subjects.</p>
+                </div>
+                <div class="step-connector">
+                    <svg width="40" height="24" viewBox="0 0 40 24" fill="none" stroke="currentColor" stroke-width="2" opacity="0.3"><path d="M0 12h36"/><path d="m30 6 6 6-6 6"/></svg>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">03</div>
+                    <h3>Download Resources</h3>
+                    <p>Get notes, PYQs, and handwritten notes instantly.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <app-footer></app-footer>
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="js/components/Navbar.js" defer></script>
+    <script src="js/components/Footer.js" defer></script>
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

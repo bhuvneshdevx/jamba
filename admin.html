@@ -1,0 +1,1673 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel — NexStudy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .admin-wrapper {
+            min-height: 100vh;
+            padding: 100px 20px 40px;
+        }
+
+        /* ---- Login ---- */
+        .login-container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding-top: 60px;
+        }
+
+        .login-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: 40px;
+        }
+
+        .login-card h2 {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+
+        .login-card p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 28px;
+        }
+
+        /* ---- Forms ---- */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text-secondary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            font-family: var(--font-body);
+            outline: none;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+        }
+
+        .form-input:focus {
+            border-color: var(--accent-1);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        select.form-input {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%236b6b80' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 40px;
+        }
+
+        select.form-input option {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        textarea.form-input {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-error {
+            color: #ef4444;
+            font-size: 0.8rem;
+            margin-top: 8px;
+        }
+
+        .form-success {
+            color: #10b981;
+            font-size: 0.85rem;
+            margin-top: 8px;
+            padding: 10px 16px;
+            background: rgba(16, 185, 129, 0.1);
+            border-radius: var(--radius-sm);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .form-inline {
+            display: flex;
+            gap: 8px;
+            align-items: flex-end;
+        }
+
+        .form-inline .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        .form-inline .btn {
+            height: 46px;
+            white-space: nowrap;
+        }
+
+        /* ---- Admin Header ---- */
+        .admin-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .admin-header h1 {
+            font-family: var(--font-heading);
+            font-size: 1.8rem;
+        }
+
+        .admin-header .admin-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* ---- Tabs ---- */
+        .admin-tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 32px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 4px;
+            width: fit-content;
+            flex-wrap: wrap;
+        }
+
+        .admin-tab {
+            padding: 10px 20px;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-family: var(--font-body);
+            transition: all 0.2s;
+        }
+
+        .admin-tab.active {
+            background: var(--accent-1);
+            color: white;
+        }
+
+        .admin-tab:hover:not(.active) {
+            color: var(--text-primary);
+            background: var(--bg-glass-hover);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* ---- Dashboard Stats ---- */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            transition: border-color 0.2s;
+        }
+
+        .stat-card:hover {
+            border-color: var(--border-hover);
+        }
+
+        .stat-card .stat-icon {
+            font-size: 1.5rem;
+            margin-bottom: 12px;
+        }
+
+        .stat-card .stat-value {
+            font-family: var(--font-heading);
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            line-height: 1;
+        }
+
+        .stat-card .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        .stats-breakdown {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .breakdown-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 24px;
+        }
+
+        .breakdown-card h4 {
+            font-family: var(--font-heading);
+            font-size: 1rem;
+            margin-bottom: 16px;
+            color: var(--text-secondary);
+        }
+
+        .breakdown-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .breakdown-row:last-child {
+            border-bottom: none;
+        }
+
+        .breakdown-row span:first-child {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .breakdown-row span:last-child {
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* ---- Cards ---- */
+        .add-form-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: 32px;
+            max-width: 750px;
+        }
+
+        .add-form-card h3 {
+            font-family: var(--font-heading);
+            font-size: 1.2rem;
+            margin-bottom: 24px;
+        }
+
+        /* ---- Upload Zone ---- */
+        .upload-zone {
+            border: 2px dashed var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .upload-zone:hover,
+        .upload-zone.dragover {
+            border-color: var(--accent-1);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .upload-zone.has-file {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .upload-zone .upload-icon {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+        }
+
+        .upload-zone .upload-text {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 6px;
+        }
+
+        .upload-zone .upload-hint {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .upload-zone input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        /* ---- Bulk file list ---- */
+        .bulk-file-list {
+            margin-top: 16px;
+        }
+
+        .bulk-file-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            margin-bottom: 8px;
+        }
+
+        .bulk-file-item .file-icon {
+            font-size: 1.2rem;
+        }
+
+        .bulk-file-item .file-details {
+            flex: 1;
+        }
+
+        .bulk-file-item .file-details .fname {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .bulk-file-item .file-details .fsize {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .bulk-file-item .file-title-input {
+            flex: 1;
+            padding: 8px 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            font-family: var(--font-body);
+            outline: none;
+        }
+
+        .bulk-file-item .file-title-input:focus {
+            border-color: var(--accent-1);
+        }
+
+        .bulk-file-item .remove-file {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            transition: background 0.2s;
+        }
+
+        .bulk-file-item .remove-file:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        /* ---- Progress ---- */
+        .upload-progress {
+            display: none;
+            margin-top: 16px;
+        }
+
+        .upload-progress.active {
+            display: block;
+        }
+
+        .progress-bar-bg {
+            height: 8px;
+            background: var(--bg-glass);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .progress-text {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 6px;
+            text-align: center;
+        }
+
+        /* ---- Resource List ---- */
+        .resource-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .resource-list-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            transition: border-color 0.2s;
+        }
+
+        .resource-list-item:hover {
+            border-color: var(--border-hover);
+        }
+
+        .resource-list-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .resource-list-info h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .resource-list-info p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .resource-list-actions {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border-color);
+            background: var(--bg-glass);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1rem;
+            text-decoration: none;
+        }
+
+        .btn-icon:hover {
+            border-color: var(--accent-1);
+            color: var(--accent-1);
+        }
+
+        .btn-icon.delete:hover {
+            border-color: #ef4444;
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .btn-icon.edit:hover {
+            border-color: #f59e0b;
+            color: #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .search-manage {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-manage .search-input-wrap {
+            flex: 1;
+            min-width: 200px;
+            position: relative;
+        }
+
+        .search-manage .search-input-wrap input {
+            width: 100%;
+            padding: 12px 16px 12px 40px;
+        }
+
+        .search-manage .search-input-wrap .search-ico {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            pointer-events: none;
+        }
+
+        .search-manage .form-input {
+            width: auto;
+            min-width: 160px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state .emoji {
+            font-size: 3rem;
+            margin-bottom: 12px;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ---- Edit Modal ---- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: 32px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-card h3 {
+            font-family: var(--font-heading);
+            font-size: 1.2rem;
+            margin-bottom: 24px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            justify-content: flex-end;
+        }
+
+        /* ---- Settings ---- */
+        .settings-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .settings-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: 28px;
+        }
+
+        .settings-card h3 {
+            font-family: var(--font-heading);
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+
+        .settings-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .settings-list-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background: var(--bg-glass);
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+        }
+
+        .settings-list-item .item-label {
+            color: var(--text-secondary);
+        }
+
+        .settings-list-item .item-meta {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+
+        .resource-count-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 20px;
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--accent-1);
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        @media (max-width: 768px) {
+
+            .form-row,
+            .form-row-3,
+            .settings-grid,
+            .stats-breakdown {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-tabs {
+                width: 100%;
+            }
+
+            .admin-tab {
+                flex: 1;
+                text-align: center;
+                padding: 10px 8px;
+                font-size: 0.75rem;
+            }
+
+            .resource-list-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .search-manage .form-input {
+                width: 100%;
+                min-width: unset;
+            }
+
+            .bulk-file-item {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <app-navbar is-admin="true"></app-navbar>
+
+    <div class="admin-wrapper">
+        <div class="container">
+
+            <!-- Login -->
+            <div id="loginScreen" class="login-container">
+                <div class="login-card">
+                    <h2>🔐 Admin Login</h2>
+                    <p>Sign in to manage resources.</p>
+                    <div class="form-group">
+                        <label for="loginEmail">Email</label>
+                        <input type="email" class="form-input" id="loginEmail" placeholder="admin@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" class="form-input" id="loginPassword" placeholder="••••••••">
+                    </div>
+                    <div id="loginError" class="form-error" style="display:none;"></div>
+                    <button class="btn btn-primary" id="loginBtn"
+                        style="width:100%; margin-top:12px; justify-content:center;">Sign In</button>
+                </div>
+            </div>
+
+            <!-- Dashboard -->
+            <div id="adminDashboard" style="display:none;">
+                <div class="admin-header">
+                    <h1>📋 Admin Panel</h1>
+                    <div class="admin-user">
+                        <span id="adminEmail"></span>
+                        <button class="btn btn-glass" id="logoutBtn"
+                            style="padding:8px 16px; font-size:0.85rem;">Logout</button>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="admin-tabs">
+                    <button class="admin-tab active" data-tab="dashboard">📊 Dashboard</button>
+                    <button class="admin-tab" data-tab="upload">⬆️ Upload</button>
+                    <button class="admin-tab" data-tab="manage">📁 Resources</button>
+                    <button class="admin-tab" data-tab="settings">⚙️ Settings</button>
+                </div>
+
+                <!-- ==================== DASHBOARD TAB ==================== -->
+                <div class="tab-content active" id="tab-dashboard">
+                    <div class="stats-grid" id="statsGrid">
+                        <div class="stat-card">
+                            <div class="stat-icon">📦</div>
+                            <div class="stat-value" id="statTotal">-</div>
+                            <div class="stat-label">Total Resources</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🆕</div>
+                            <div class="stat-value" id="statWeek">-</div>
+                            <div class="stat-label">Uploaded This Week</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">📚</div>
+                            <div class="stat-value" id="statSubjects">-</div>
+                            <div class="stat-label">Subjects with Resources</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">📝</div>
+                            <div class="stat-value" id="statTypes">-</div>
+                            <div class="stat-label">Resource Types</div>
+                        </div>
+                    </div>
+                    <div class="stats-breakdown">
+                        <div class="breakdown-card">
+                            <h4>📅 By Year</h4>
+                            <div id="breakdownYear"></div>
+                        </div>
+                        <div class="breakdown-card">
+                            <h4>📂 By Type</h4>
+                            <div id="breakdownType"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== UPLOAD TAB ==================== -->
+                <div class="tab-content" id="tab-upload">
+                    <div class="add-form-card">
+                        <h3>Upload Resources</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="resYear">Year</label>
+                                <select class="form-input" id="resYear">
+                                    <option value="">Select Year</option>
+                                    <option value="1">1st Year</option>
+                                    <option value="2">2nd Year</option>
+                                    <option value="3">3rd Year</option>
+                                    <option value="4">4th Year</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="resSemester">Semester</label>
+                                <select class="form-input" id="resSemester">
+                                    <option value="">Select Semester</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="resSubject">Subject</label>
+                            <select class="form-input" id="resSubject">
+                                <option value="">Select Subject</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="resType">Resource Type</label>
+                            <select class="form-input" id="resType"></select>
+                        </div>
+
+                        <!-- File Upload Zone (supports multiple) -->
+                        <div class="form-group">
+                            <label>Upload Files (select multiple for bulk upload)</label>
+                            <div class="upload-zone" id="uploadZone">
+                                <div class="upload-icon">📁</div>
+                                <div class="upload-text">Drag & drop files here, or click to browse</div>
+                                <div class="upload-hint">PDF, DOCX, PPTX, ZIP, Images — Max 50 MB each</div>
+                                <input type="file" id="fileInput" multiple
+                                    accept=".pdf,.doc,.docx,.ppt,.pptx,.zip,.jpg,.jpeg,.png,.webp">
+                            </div>
+                        </div>
+
+                        <!-- Bulk file list with editable titles -->
+                        <div class="bulk-file-list" id="bulkFileList"></div>
+
+                        <div class="upload-progress" id="uploadProgress">
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill" id="progressFill"></div>
+                            </div>
+                            <div class="progress-text" id="progressText">Uploading... 0%</div>
+                        </div>
+
+                        <div id="addError" class="form-error" style="display:none;"></div>
+                        <div id="addSuccess" class="form-success" style="display:none;"></div>
+                        <button class="btn btn-primary" id="addResourceBtn" style="margin-top:16px;">Upload &
+                            Save</button>
+                    </div>
+                </div>
+
+                <!-- ==================== MANAGE TAB ==================== -->
+                <div class="tab-content" id="tab-manage">
+                    <div class="search-manage">
+                        <div class="search-input-wrap">
+                            <span class="search-ico">🔍</span>
+                            <input type="text" class="form-input" id="searchResources"
+                                placeholder="Search by title, subject...">
+                        </div>
+                        <select class="form-input" id="filterYear">
+                            <option value="">All Years</option>
+                            <option value="1">1st Year</option>
+                            <option value="2">2nd Year</option>
+                            <option value="3">3rd Year</option>
+                            <option value="4">4th Year</option>
+                        </select>
+                        <select class="form-input" id="filterType">
+                            <option value="">All Types</option>
+                        </select>
+                    </div>
+                    <div class="resource-list" id="resourceList">
+                        <div class="empty-state">
+                            <div class="emoji">📭</div>
+                            <p>Loading resources...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== SETTINGS TAB ==================== -->
+                <div class="tab-content" id="tab-settings">
+                    <div class="settings-grid">
+                        <!-- Add Subject -->
+                        <div class="settings-card">
+                            <h3>📖 Add Subject</h3>
+                            <div class="form-group">
+                                <label for="newSubjYear">Year</label>
+                                <select class="form-input" id="newSubjYear">
+                                    <option value="">Select Year</option>
+                                    <option value="1">1st Year</option>
+                                    <option value="2">2nd Year</option>
+                                    <option value="3">3rd Year</option>
+                                    <option value="4">4th Year</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="newSubjSem">Semester</label>
+                                <select class="form-input" id="newSubjSem">
+                                    <option value="">Select Semester</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="newSubjName">Subject Name</label>
+                                <input type="text" class="form-input" id="newSubjName"
+                                    placeholder="e.g. Quantum Computing">
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="newSubjCode">Code</label>
+                                    <input type="text" class="form-input" id="newSubjCode" placeholder="e.g. CS801">
+                                </div>
+                                <div class="form-group">
+                                    <label for="newSubjIcon">Icon (emoji)</label>
+                                    <input type="text" class="form-input" id="newSubjIcon" placeholder="e.g. 🔬"
+                                        maxlength="4">
+                                </div>
+                            </div>
+                            <div id="subjError" class="form-error" style="display:none;"></div>
+                            <div id="subjSuccess" class="form-success" style="display:none;"></div>
+                            <button class="btn btn-primary" id="addSubjectBtn" style="margin-top:8px;">Add
+                                Subject</button>
+
+                            <h4
+                                style="margin-top:28px; font-family:var(--font-heading); font-size:0.95rem; margin-bottom:12px;">
+                                Custom Subjects</h4>
+                            <div id="customSubjectsList" class="settings-list"></div>
+                        </div>
+
+                        <!-- Resource Types -->
+                        <div class="settings-card">
+                            <h3>🏷️ Resource Types</h3>
+                            <div class="settings-list" id="resourceTypeList"></div>
+                            <div class="form-inline" style="margin-top:16px;">
+                                <div class="form-group">
+                                    <input type="text" class="form-input" id="newTypeName" placeholder="Type name">
+                                </div>
+                                <div class="form-group" style="max-width:60px;">
+                                    <input type="text" class="form-input" id="newTypeIcon" placeholder="📎"
+                                        maxlength="4">
+                                </div>
+                                <button class="btn btn-primary" id="addTypeBtn">Add</button>
+                            </div>
+                            <div id="typeError" class="form-error" style="display:none;"></div>
+                            <div id="typeSuccess" class="form-success" style="display:none;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="modal-overlay" id="editModal">
+        <div class="modal-card">
+            <h3>✏️ Edit Resource</h3>
+            <input type="hidden" id="editId">
+            <div class="form-group">
+                <label for="editTitle">Title</label>
+                <input type="text" class="form-input" id="editTitle">
+            </div>
+            <div class="form-group">
+                <label for="editType">Type</label>
+                <select class="form-input" id="editType"></select>
+            </div>
+            <div class="form-group">
+                <label for="editDesc">Description</label>
+                <textarea class="form-input" id="editDesc"></textarea>
+            </div>
+            <div id="editError" class="form-error" style="display:none;"></div>
+            <div class="modal-actions">
+                <button class="btn btn-glass" onclick="closeEditModal()">Cancel</button>
+                <button class="btn btn-primary" id="saveEditBtn">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="js/components/Navbar.js" defer></script>
+    <script src="data.js"></script>
+    <script>
+
+        /* ================================================================
+           CONFIG
+        ================================================================ */
+        const CLOUDINARY_CLOUD = 'ddzwg11ez';
+        const CLOUDINARY_PRESET = '--database--';
+
+        // Default resource types
+        const DEFAULT_TYPES = [
+            { id: 'notes', name: 'Lecture Notes', icon: '📄' },
+            { id: 'handwritten', name: 'Handwritten Notes', icon: '✏️' },
+            { id: 'pyq', name: 'Previous Year Paper', icon: '📝' },
+            { id: 'syllabus', name: 'Syllabus', icon: '📋' },
+        ];
+
+        let allResources = [];
+        let customSubjects = [];
+        let resourceTypes = []; // loaded from firestore exclusively now
+        let bulkFiles = [];
+
+        /* ================================================================
+           DOM REFS
+        ================================================================ */
+        const $ = id => document.getElementById(id);
+
+        /* ================================================================
+           AUTH
+        ================================================================ */
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                $('loginScreen').style.display = 'none';
+                $('adminDashboard').style.display = 'block';
+                $('adminEmail').textContent = user.email;
+                init();
+            } else {
+                $('loginScreen').style.display = 'block';
+                $('adminDashboard').style.display = 'none';
+            }
+        });
+
+        $('loginBtn').addEventListener('click', async () => {
+            const email = $('loginEmail').value.trim();
+            const pw = $('loginPassword').value;
+            $('loginError').style.display = 'none';
+            if (!email || !pw) return showError($('loginError'), 'Enter email and password.');
+
+            $('loginBtn').disabled = true;
+            $('loginBtn').innerHTML = '<span class="loading-spinner"></span>';
+            try { await auth.signInWithEmailAndPassword(email, pw); }
+            catch (e) {
+                console.error('Login error:', e);
+                showError($('loginError'), authMsg(e.code) + ' (' + e.code + ')');
+            }
+            $('loginBtn').disabled = false;
+            $('loginBtn').textContent = 'Sign In';
+        });
+
+        $('logoutBtn').addEventListener('click', () => auth.signOut());
+
+        function authMsg(c) {
+            return {
+                'auth/wrong-password': 'Wrong password.', 'auth/user-not-found': 'No account.',
+                'auth/invalid-email': 'Invalid email.', 'auth/invalid-credential': 'Invalid email or password.',
+                'auth/too-many-requests': 'Too many attempts.',
+                'auth/network-request-failed': 'Network error. Check your connection.',
+                'auth/unauthorized-domain': 'This domain is not authorized. Add it in Firebase Console → Auth → Settings → Authorized domains.'
+            }[c] || 'Login failed.';
+        }
+
+        /* ================================================================
+           INIT — load everything
+        ================================================================ */
+        async function init() {
+            await Promise.all([loadResources(), loadCustomSubjects(), loadResourceTypes()]);
+            renderDashboard();
+            renderTypeDropdowns();
+            renderResourceTypeList();
+            renderCustomSubjectsList();
+        }
+
+        /* ================================================================
+           RESOURCE TYPES (Firestore)
+        ================================================================ */
+        async function loadResourceTypes() {
+            try {
+                const snap = await db.collection('resource_types').get();
+                let typesFromDb = [];
+                snap.forEach(doc => typesFromDb.push({ ...doc.data(), docId: doc.id }));
+
+                // Initialize default types in firestore if it's completely empty
+                if (typesFromDb.length === 0) {
+                    // Setup default types in DB first time
+                    const addPromises = DEFAULT_TYPES.map(dt =>
+                        db.collection('resource_types').add(dt)
+                    );
+                    await Promise.all(addPromises);
+
+                    // Fetch again to get the brand new docIds
+                    const newSnap = await db.collection('resource_types').get();
+                    typesFromDb = [];
+                    newSnap.forEach(doc => typesFromDb.push({ ...doc.data(), docId: doc.id }));
+                }
+
+                resourceTypes = typesFromDb;
+            } catch (e) { console.error('Load types:', e); }
+        }
+
+        function renderTypeDropdowns() {
+            const opts = resourceTypes.map(t => `<option value="${t.id}">${t.icon} ${t.name}</option>`).join('');
+            $('resType').innerHTML = opts;
+            $('editType').innerHTML = opts;
+            // Filter type dropdown
+            $('filterType').innerHTML = '<option value="">All Types</option>' + opts;
+        }
+
+        function renderResourceTypeList() {
+            const list = $('resourceTypeList');
+            list.innerHTML = resourceTypes.map(t => {
+                const escapedName = t.name.replace(/['"]/g, ""); // Remove quotes for confirm dialog safety
+                return `
+            <div class="settings-list-item">
+                <div>
+                    <span class="item-label">${t.icon} ${t.name}</span>
+                    <span class="item-meta" style="margin-left:8px;">${t.id}</span>
+                </div>
+                <button class="btn-icon delete" title="Delete type" 
+                    onclick="deleteType('${t.docId}', '${escapedName}')" 
+                    style="width:28px; height:28px; font-size:0.8rem;">✕</button>
+            </div>
+        `}).join('');
+        }
+
+        window.deleteType = async function (docId, name) {
+            if (!docId || docId === 'undefined') {
+                alert("Error: Missing Document ID. Please refresh the page.");
+                return;
+            }
+            if (!confirm(`Delete resource type "${name}"? Existing resources will keep it but it won't be an option for new uploads.`)) return;
+            try {
+                await db.collection('resource_types').doc(docId).delete();
+                resourceTypes = resourceTypes.filter(t => t.docId !== docId);
+                renderTypeDropdowns();
+                renderResourceTypeList();
+            } catch (e) { alert(e.message); }
+        };
+
+        $('addTypeBtn').addEventListener('click', async () => {
+            const name = $('newTypeName').value.trim();
+            const icon = $('newTypeIcon').value.trim() || '📎';
+            const btn = $('addTypeBtn');
+
+            $('typeError').style.display = 'none';
+            $('typeSuccess').style.display = 'none';
+
+            if (!name) return showError($('typeError'), 'Enter a type name.');
+
+            const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+            if (resourceTypes.find(t => t.id === id)) return showError($('typeError'), 'Type already exists.');
+
+            btn.disabled = true;
+            const originalText = btn.textContent;
+            btn.innerHTML = '<span class="loading-spinner"></span>';
+
+            try {
+                const docRef = await db.collection('resource_types').add({ id, name, icon });
+                resourceTypes.push({ id, name, icon, docId: docRef.id });
+
+                renderTypeDropdowns();
+                renderResourceTypeList();
+
+                $('newTypeName').value = '';
+                $('newTypeIcon').value = '';
+                $('typeSuccess').textContent = `✅ Type "${name}" added!`;
+                $('typeSuccess').style.display = 'block';
+            } catch (e) {
+                showError($('typeError'), e.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
+        });
+
+        /* ================================================================
+           CUSTOM SUBJECTS (Firestore)
+        ================================================================ */
+        async function loadCustomSubjects() {
+            try {
+                const snap = await db.collection('custom_subjects').get();
+                customSubjects = [];
+                snap.forEach(doc => customSubjects.push({ docId: doc.id, ...doc.data() }));
+
+                // Merge into NEXSTUDY_DATA
+                customSubjects.forEach(cs => {
+                    const year = NEXSTUDY_DATA.years[cs.year];
+                    if (!year) return;
+                    const sem = year.semesters[cs.semester];
+                    if (!sem) return;
+                    if (!sem.subjects.find(s => s.id === cs.id)) {
+                        sem.subjects.push({ id: cs.id, name: cs.name, code: cs.code, icon: cs.icon, resources: [] });
+                    }
+                });
+            } catch (e) { console.error('Load subjects:', e); }
+        }
+
+        function renderCustomSubjectsList() {
+            const list = $('customSubjectsList');
+            if (customSubjects.length === 0) {
+                list.innerHTML = '<p style="color:var(--text-muted); font-size:0.85rem;">No custom subjects added yet.</p>';
+                return;
+            }
+            const ordinals = { 1: '1st', 2: '2nd', 3: '3rd', 4: '4th' };
+            list.innerHTML = customSubjects.map(s => {
+                const escapedName = s.name.replace(/['"]/g, "");
+                return `
+                <div class="settings-list-item">
+                    <div>
+                        <span class="item-label">${s.icon} ${s.name}</span>
+                        <span class="item-meta" style="margin-left:8px;">${ordinals[s.year]} Year • Sem ${s.semester} • ${s.code}</span>
+                    </div>
+                    <button class="btn-icon delete" title="Delete subject" onclick="deleteCustomSubject('${s.docId}', '${s.id}', '${escapedName}', ${s.year}, ${s.semester})" style="width:28px; height:28px; font-size:0.8rem;">✕</button>
+                </div>
+            `}).join('');
+        }
+
+        window.deleteCustomSubject = async function (docId, id, name, year, sem) {
+            if (!docId || docId === 'undefined') {
+                alert("Error: Missing Document ID. Please refresh.");
+                return;
+            }
+            if (!confirm(`Delete custom subject "${name}"?`)) return;
+            try {
+                await db.collection('custom_subjects').doc(docId).delete();
+                customSubjects = customSubjects.filter(c => c.docId !== docId);
+                const semObj = NEXSTUDY_DATA.years[year]?.semesters[sem];
+                if (semObj) {
+                    semObj.subjects = semObj.subjects.filter(s => s.id !== id);
+                    $('resYear').dispatchEvent(new Event('change')); // refresh dropdowns inside admin
+                }
+                renderCustomSubjectsList();
+            } catch (e) { alert(e.message); }
+        };
+
+        // Cascading dropdowns for add subject
+        $('newSubjYear').addEventListener('change', () => {
+            const y = $('newSubjYear').value;
+            $('newSubjSem').innerHTML = '<option value="">Select Semester</option>';
+            if (y && NEXSTUDY_DATA.years[y]) {
+                for (const [n, s] of Object.entries(NEXSTUDY_DATA.years[y].semesters)) {
+                    $('newSubjSem').innerHTML += `<option value="${n}">${s.name}</option>`;
+                }
+            }
+        });
+
+        $('addSubjectBtn').addEventListener('click', async () => {
+            const year = parseInt($('newSubjYear').value);
+            const semester = parseInt($('newSubjSem').value);
+            const name = $('newSubjName').value.trim();
+            const code = $('newSubjCode').value.trim();
+            const icon = $('newSubjIcon').value.trim() || '📖';
+            const btn = $('addSubjectBtn');
+
+            $('subjError').style.display = 'none';
+            $('subjSuccess').style.display = 'none';
+
+            if (!year || !semester || !name || !code) return showError($('subjError'), 'Fill in all fields.');
+
+            const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+
+            btn.disabled = true;
+            const originalText = btn.textContent;
+            btn.innerHTML = '<span class="loading-spinner"></span>';
+
+            try {
+                const docRef = await db.collection('custom_subjects').add({ id, name, code, icon, year, semester });
+                customSubjects.push({ id, name, code, icon, year, semester, docId: docRef.id });
+
+                // Also add to local data
+                const sem = NEXSTUDY_DATA.years[year]?.semesters[semester];
+                if (sem && !sem.subjects.find(s => s.id === id)) {
+                    sem.subjects.push({ id, name, code, icon, resources: [] });
+                    // Trigger dropdown refresh to ensure it's selectable immediately
+                    $('resYear').dispatchEvent(new Event('change'));
+                }
+
+                renderCustomSubjectsList();
+                $('newSubjName').value = '';
+                $('newSubjCode').value = '';
+                $('newSubjIcon').value = '';
+                showSuccess($('subjSuccess'), `✅ "${name}" added!`);
+            } catch (e) { 
+                showError($('subjError'), e.message); 
+            } finally {
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
+        });
+
+        /* ================================================================
+           CASCADING DROPDOWNS (Upload tab)
+        ================================================================ */
+        $('resYear').addEventListener('change', () => {
+            const y = $('resYear').value;
+            $('resSemester').innerHTML = '<option value="">Select Semester</option>';
+            $('resSubject').innerHTML = '<option value="">Select Subject</option>';
+            if (y && NEXSTUDY_DATA.years[y]) {
+                for (const [n, s] of Object.entries(NEXSTUDY_DATA.years[y].semesters)) {
+                    $('resSemester').innerHTML += `<option value="${n}">${s.name}</option>`;
+                }
+            }
+        });
+
+        $('resSemester').addEventListener('change', () => {
+            const y = $('resYear').value, s = $('resSemester').value;
+            $('resSubject').innerHTML = '<option value="">Select Subject</option>';
+            if (y && s && NEXSTUDY_DATA.years[y]?.semesters[s]) {
+                for (const subj of NEXSTUDY_DATA.years[y].semesters[s].subjects) {
+                    $('resSubject').innerHTML += `<option value="${subj.id}">${subj.name} (${subj.code})</option>`;
+                }
+            }
+        });
+
+        /* ================================================================
+           FILE SELECTION (bulk)
+        ================================================================ */
+        const uploadZone = $('uploadZone');
+        const fileInput = $('fileInput');
+
+        fileInput.addEventListener('change', (e) => {
+            addFiles(Array.from(e.target.files));
+            fileInput.value = '';
+        });
+
+        uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+        uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+        uploadZone.addEventListener('drop', e => {
+            e.preventDefault(); uploadZone.classList.remove('dragover');
+            addFiles(Array.from(e.dataTransfer.files));
+        });
+
+        function addFiles(files) {
+            for (const f of files) {
+                if (f.size > 50 * 1024 * 1024) { alert(`${f.name} is too large (max 50 MB)`); continue; }
+                const nameWithoutExt = f.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' ');
+                const title = nameWithoutExt.charAt(0).toUpperCase() + nameWithoutExt.slice(1);
+                bulkFiles.push({ file: f, title });
+            }
+            renderBulkList();
+        }
+
+        function removeFile(idx) {
+            bulkFiles.splice(idx, 1);
+            renderBulkList();
+        }
+
+        function renderBulkList() {
+            const el = $('bulkFileList');
+            if (bulkFiles.length === 0) { el.innerHTML = ''; return; }
+
+            el.innerHTML = bulkFiles.map((bf, i) => `
+            <div class="bulk-file-item">
+                <span class="file-icon">📄</span>
+                <div class="file-details">
+                    <div class="fname">${bf.file.name}</div>
+                    <div class="fsize">${formatSize(bf.file.size)}</div>
+                </div>
+                <input type="text" class="file-title-input" value="${bf.title}" placeholder="Title" onchange="bulkFiles[${i}].title=this.value">
+                <button class="remove-file" onclick="removeFile(${i})">✕</button>
+            </div>
+        `).join('');
+        }
+
+        /* ================================================================
+           UPLOAD TO CLOUDINARY
+        ================================================================ */
+        function uploadToCloudinary(file, onProgress) {
+            return new Promise((resolve, reject) => {
+                const fd = new FormData();
+                fd.append('file', file);
+                fd.append('upload_preset', CLOUDINARY_PRESET);
+
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/auto/upload`);
+                xhr.upload.addEventListener('progress', e => {
+                    if (e.lengthComputable && onProgress) onProgress(Math.round((e.loaded / e.total) * 100));
+                });
+                xhr.onload = () => {
+                    if (xhr.status === 200) {
+                        resolve(JSON.parse(xhr.responseText));
+                    } else {
+                        let msg = 'Upload failed (status ' + xhr.status + ')';
+                        try {
+                            const err = JSON.parse(xhr.responseText);
+                            msg = err.error?.message || msg;
+                        } catch (e) { }
+                        console.error('Cloudinary error:', xhr.responseText);
+                        reject(new Error(msg));
+                    }
+                };
+                xhr.onerror = () => reject(new Error('Network error'));
+                xhr.send(fd);
+            });
+        }
+
+        /* ================================================================
+           ADD RESOURCES (single + bulk)
+        ================================================================ */
+        $('addResourceBtn').addEventListener('click', async () => {
+            $('addError').style.display = 'none';
+            $('addSuccess').style.display = 'none';
+
+            const year = $('resYear').value;
+            const semester = $('resSemester').value;
+            const subjectId = $('resSubject').value;
+            const type = $('resType').value;
+
+            if (!year || !semester || !subjectId) return showError($('addError'), 'Select year, semester, and subject.');
+            if (bulkFiles.length === 0) return showError($('addError'), 'Select at least one file.');
+
+            const subjectData = NEXSTUDY_DATA.years[year]?.semesters[semester]?.subjects.find(s => s.id === subjectId);
+            const subjectName = subjectData ? subjectData.name : subjectId;
+
+            $('addResourceBtn').disabled = true;
+            $('uploadProgress').classList.add('active');
+
+            const total = bulkFiles.length;
+            let done = 0;
+            let errors = [];
+
+            for (const bf of bulkFiles) {
+                if (!bf.title.trim()) bf.title = bf.file.name.replace(/\.[^/.]+$/, '');
+
+                $('progressText').textContent = `Uploading ${done + 1} of ${total}: ${bf.file.name}`;
+                $('progressFill').style.width = '0%';
+
+                try {
+                    const cloud = await uploadToCloudinary(bf.file, pct => {
+                        $('progressFill').style.width = pct + '%';
+                    });
+
+                    await db.collection('resources').add({
+                        year: parseInt(year), semester: parseInt(semester),
+                        subjectId, subjectName, title: bf.title, type,
+                        desc: '', fileUrl: cloud.secure_url,
+                        size: formatSize(cloud.bytes),
+                        format: (cloud.format || bf.file.name.split('.').pop()).toUpperCase(),
+                        originalName: bf.file.name,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    });
+                    done++;
+                } catch (e) {
+                    errors.push(bf.file.name + ': ' + e.message);
+                }
+            }
+
+            $('uploadProgress').classList.remove('active');
+            $('addResourceBtn').disabled = false;
+            $('addResourceBtn').textContent = 'Upload & Save';
+
+            bulkFiles = [];
+            renderBulkList();
+
+            if (errors.length > 0) {
+                showError($('addError'), `Failed: ${errors.join(', ')}`);
+            }
+
+            showSuccess($('addSuccess'), `✅ ${done} resource${done !== 1 ? 's' : ''} uploaded successfully!`);
+
+            await loadResources();
+            renderDashboard();
+        });
+
+        /* ================================================================
+           LOAD RESOURCES
+        ================================================================ */
+        async function loadResources() {
+            try {
+                const snap = await db.collection('resources').orderBy('createdAt', 'desc').get();
+                allResources = [];
+                snap.forEach(doc => allResources.push({ id: doc.id, ...doc.data() }));
+                renderResourceList();
+            } catch (e) {
+                $('resourceList').innerHTML = `<div class="empty-state"><div class="emoji">⚠️</div><p>${e.message}</p></div>`;
+            }
+        }
+
+        /* ================================================================
+           RENDER RESOURCE LIST (with search + filter)
+        ================================================================ */
+        function renderResourceList() {
+            const search = ($('searchResources')?.value || '').toLowerCase();
+            const yearF = $('filterYear').value;
+            const typeF = $('filterType').value;
+
+            let list = allResources;
+            if (yearF) list = list.filter(r => r.year === parseInt(yearF));
+            if (typeF) list = list.filter(r => r.type === typeF);
+            if (search) list = list.filter(r =>
+                (r.title || '').toLowerCase().includes(search) ||
+                (r.subjectName || '').toLowerCase().includes(search)
+            );
+
+            if (list.length === 0) {
+                $('resourceList').innerHTML = `<div class="empty-state"><div class="emoji">📭</div><p>No resources found.</p></div>`;
+                return;
+            }
+
+            const typeMap = {};
+            resourceTypes.forEach(t => typeMap[t.id] = `${t.icon} ${t.name}`);
+            const ord = { 1: '1st', 2: '2nd', 3: '3rd', 4: '4th' };
+
+            $('resourceList').innerHTML = list.map(r => `
+            <div class="resource-list-item">
+                <div class="resource-list-info">
+                    <h4>${r.title}</h4>
+                    <p>${ord[r.year] || r.year} Year • Sem ${r.semester} • ${r.subjectName || r.subjectId} • ${typeMap[r.type] || r.type}${r.size ? ' • ' + r.size : ''}</p>
+                </div>
+                <div class="resource-list-actions">
+                    <a href="${r.fileUrl || '#'}" target="_blank" class="btn-icon" title="Open file">🔗</a>
+                    <button class="btn-icon edit" title="Edit" onclick='openEditModal(${JSON.stringify(r).replace(/'/g, "&#39;")})'>✏️</button>
+                    <button class="btn-icon delete" title="Delete" onclick="deleteResource('${r.id}','${(r.title || '').replace(/'/g, "\\'")}')">🗑️</button>
+                </div>
+            </div>
+        `).join('');
+        }
+
+        $('searchResources')?.addEventListener('input', renderResourceList);
+        $('filterYear').addEventListener('change', renderResourceList);
+        $('filterType').addEventListener('change', renderResourceList);
+
+        /* ================================================================
+           EDIT MODAL
+        ================================================================ */
+        function openEditModal(r) {
+            $('editId').value = r.id;
+            $('editTitle').value = r.title || '';
+            $('editType').value = r.type || 'notes';
+            $('editDesc').value = r.desc || '';
+            $('editError').style.display = 'none';
+            $('editModal').classList.add('active');
+        }
+
+        function closeEditModal() {
+            $('editModal').classList.remove('active');
+        }
+
+        $('editModal').addEventListener('click', e => {
+            if (e.target === $('editModal')) closeEditModal();
+        });
+
+        $('saveEditBtn').addEventListener('click', async () => {
+            const id = $('editId').value;
+            const title = $('editTitle').value.trim();
+            const type = $('editType').value;
+            const desc = $('editDesc').value.trim();
+            $('editError').style.display = 'none';
+
+            if (!title) return showError($('editError'), 'Title is required.');
+
+            $('saveEditBtn').disabled = true;
+            $('saveEditBtn').innerHTML = '<span class="loading-spinner"></span>';
+
+            try {
+                await db.collection('resources').doc(id).update({ title, type, desc });
+                // Update local
+                const r = allResources.find(x => x.id === id);
+                if (r) { r.title = title; r.type = type; r.desc = desc; }
+                renderResourceList();
+                renderDashboard();
+                closeEditModal();
+            } catch (e) {
+                showError($('editError'), e.message);
+            }
+
+            $('saveEditBtn').disabled = false;
+            $('saveEditBtn').textContent = 'Save Changes';
+        });
+
+        /* ================================================================
+           DELETE RESOURCE
+        ================================================================ */
+        async function deleteResource(id, title) {
+            if (!confirm(`Delete "${title}"?`)) return;
+            try {
+                await db.collection('resources').doc(id).delete();
+                allResources = allResources.filter(r => r.id !== id);
+                renderResourceList();
+                renderDashboard();
+            } catch (e) { alert('Error: ' + e.message); }
+        }
+
+        /* ================================================================
+           DASHBOARD STATS
+        ================================================================ */
+        function renderDashboard() {
+            const total = allResources.length;
+
+            // This week
+            const weekAgo = new Date();
+            weekAgo.setDate(weekAgo.getDate() - 7);
+            const thisWeek = allResources.filter(r => {
+                if (!r.createdAt) return false;
+                const d = new Date(r.createdAt.seconds * 1000);
+                return d >= weekAgo;
+            }).length;
+
+            // Unique subjects
+            const subjects = new Set(allResources.map(r => r.subjectId));
+
+            // Unique types
+            const types = new Set(allResources.map(r => r.type));
+
+            $('statTotal').textContent = total;
+            $('statWeek').textContent = thisWeek;
+            $('statSubjects').textContent = subjects.size;
+            $('statTypes').textContent = types.size;
+
+            // By year breakdown
+            const byYear = { 1: 0, 2: 0, 3: 0, 4: 0 };
+            allResources.forEach(r => { if (byYear[r.year] !== undefined) byYear[r.year]++; });
+            const ord = { 1: '1st Year', 2: '2nd Year', 3: '3rd Year', 4: '4th Year' };
+            $('breakdownYear').innerHTML = Object.entries(byYear).map(([y, c]) => `
+            <div class="breakdown-row"><span>${ord[y]}</span><span>${c}</span></div>
+        `).join('');
+
+            // By type breakdown
+            const byType = {};
+            allResources.forEach(r => { byType[r.type] = (byType[r.type] || 0) + 1; });
+            const typeMap = {};
+            resourceTypes.forEach(t => typeMap[t.id] = `${t.icon} ${t.name}`);
+            $('breakdownType').innerHTML = Object.entries(byType).map(([t, c]) => `
+            <div class="breakdown-row"><span>${typeMap[t] || t}</span><span>${c}</span></div>
+        `).join('') || '<p style="color:var(--text-muted);font-size:0.85rem;">No data yet.</p>';
+        }
+
+        /* ================================================================
+           TABS
+        ================================================================ */
+        document.querySelectorAll('.admin-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                $('tab-' + tab.dataset.tab).classList.add('active');
+            });
+        });
+
+        /* ================================================================
+           HELPERS
+        ================================================================ */
+        function showError(el, msg) { el.textContent = msg; el.style.display = 'block'; }
+        
+        function showSuccess(el, msg) {
+            el.textContent = msg;
+            el.style.display = 'block';
+            setTimeout(() => {
+                el.style.display = 'none';
+            }, 5000);
+        }
+
+        function formatSize(b) {
+            if (b < 1024) return b + ' B';
+            if (b < 1024 * 1024) return (b / 1024).toFixed(1) + ' KB';
+            return (b / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+
+    </script>
+</body>
+</html>
