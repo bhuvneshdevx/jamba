@@ -38,15 +38,14 @@
     <!-- Footer -->
     <app-footer></app-footer>
 
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-    <script src="firebase-config.js"></script>
+    <script type="module" src="supabase-config.js"></script>
     <script src="js/components/Navbar.js" defer></script>
     <script src="js/components/Footer.js" defer></script>
     
     <script type="module">
         import { NEXSTUDY_DATA } from './js/modules/data.js';
         import { initApp, getParam, ordinal } from './js/modules/app.js';
+        import { supabase } from './supabase-config.js';
 
         document.addEventListener('DOMContentLoaded', async () => {
             initApp();
@@ -58,16 +57,17 @@
 
             // Load custom subjects
             try {
-                const snap = await db.collection('custom_subjects').where('year', '==', yearNum).get();
-                snap.forEach(doc => {
-                    const cs = doc.data();
+                const { data: snap, error } = await supabase.from('custom_subjects').select('*').eq('year', yearNum);
+                if (snap) {
+                    snap.forEach(cs => {
                     const y = NEXSTUDY_DATA.years[cs.year];
                     if (y && y.semesters[cs.semester]) {
                         if (!y.semesters[cs.semester].subjects.find(s => s.id === cs.id)) {
                             y.semesters[cs.semester].subjects.push({ id: cs.id, name: cs.name, code: cs.code, icon: cs.icon, resources: [] });
                         }
                     }
-                });
+                    });
+                }
             } catch(e) { console.error('Error loading custom subjects', e); }
 
             if (!NEXSTUDY_DATA.years[yearNum]) {
@@ -84,15 +84,15 @@
             document.getElementById('pageTitle').innerHTML = `${yearOrdinal} Year — <span class="gradient-text">${year.name}</span>`;
             document.getElementById('pageDesc').textContent = year.description;
 
-            // Get resource counts from Firestore for this year
+            // Get resource counts from Supabase for this year
             let resourceCounts = {};
             try {
-                const snapshot = await db.collection('resources')
-                    .where('year', '==', yearNum)
-                    .get();
+                const { data: snapshot, error } = await supabase.from('resources')
+                    .select('subjectId, type')
+                    .eq('year', yearNum);
 
-                snapshot.forEach(doc => {
-                    const data = doc.data();
+                if (snapshot) {
+                    snapshot.forEach(data => {
                     const key = `${data.subjectId}-${data.type}`;
                     if (!resourceCounts[data.subjectId]) {
                         resourceCounts[data.subjectId] = { total: 0, notes: 0, handwritten: 0, pyq: 0, syllabus: 0 };
@@ -101,7 +101,8 @@
                     if (resourceCounts[data.subjectId][data.type] !== undefined) {
                         resourceCounts[data.subjectId][data.type]++;
                     }
-                });
+                    });
+                }
             } catch (err) {
                 console.error('Could not load resource counts:', err);
             }

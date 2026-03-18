@@ -855,18 +855,102 @@
 
     <app-footer></app-footer>
 
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-    <script src="firebase-config.js"></script>
+    <script type="module" src="supabase-config.js"></script>
+
+    <!-- Web Components -->
     <script src="js/components/Navbar.js" defer></script>
     <script src="js/components/Footer.js" defer></script>
-    
+
+    <!--
+        Auth bootstrap
+    -->
     <script type="module">
-        import { initAdmin } from './js/admin/admin-core.js';
-        initAdmin();
+        import { supabase } from './supabase-config.js';
+
+        // Wait for the DOM to be ready before wiring up UI
+        document.addEventListener('DOMContentLoaded', async function () {
+
+            var loginScreen = document.getElementById('loginScreen');
+            var adminPanel  = document.getElementById('adminPanel');
+            var loginBtn    = document.getElementById('loginBtn');
+            var logoutBtn   = document.getElementById('logoutBtn');
+            var emailInput  = document.getElementById('email');
+            var passInput   = document.getElementById('password');
+            var errorDiv    = document.getElementById('loginError');
+
+            // Flag so we only load the admin module once
+            var adminLoaded = false;
+
+            function showErr(msg) {
+                errorDiv.textContent   = msg;
+                errorDiv.style.display = 'block';
+            }
+
+            // ----- Auth state observer -----
+            supabase.auth.onAuthStateChange(function (event, session) {
+                var user = session?.user;
+                if (user) {
+                    loginScreen.style.display = 'none';
+                    adminPanel.style.display  = 'block';
+
+                    // Set user info if elements exist
+                    var emailEl   = document.getElementById('userEmail');
+                    var initialEl = document.getElementById('userInitial');
+                    if (emailEl)   emailEl.textContent   = user.email;
+                    if (initialEl) initialEl.textContent = user.email.charAt(0).toUpperCase();
+
+                    // Lazily import and initialise the full admin panel module
+                    if (!adminLoaded) {
+                        adminLoaded = true;
+                        import('./js/admin/admin-core.js').then(function (mod) {
+                            mod.initAdmin();
+                        }).catch(function (err) {
+                            console.error('Failed to load admin module:', err);
+                            alert('Admin panel failed to load: ' + err.message);
+                        });
+                    }
+                } else {
+                    loginScreen.style.display = 'block';
+                    adminPanel.style.display  = 'none';
+                }
+            });
+
+            // ----- Sign-in button -----
+            loginBtn.addEventListener('click', function () {
+                var email = emailInput.value.trim();
+                var pass  = passInput.value;
+
+                errorDiv.style.display = 'none';
+                if (!email || !pass) { showErr('Enter your email and password.'); return; }
+
+                loginBtn.disabled     = true;
+                loginBtn.textContent  = 'Signing in…';
+
+                supabase.auth.signInWithPassword({ email: email, password: pass })
+                    .then(function(res) {
+                        if(res.error) throw res.error;
+                    })
+                    .catch(function (e) {
+                        showErr(e.message);
+                        loginBtn.disabled    = false;
+                        loginBtn.textContent = 'Sign In';
+                    });
+            });
+
+            // Allow pressing Enter in password field to submit
+            passInput.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') loginBtn.click();
+            });
+
+            // ----- Logout button -----
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', function () {
+                    supabase.auth.signOut();
+                });
+            }
+        });
     </script>
 </body>
 
 </html>
+

@@ -1,0 +1,16 @@
+[debug] [2026-03-18T18:17:45.068Z] ----------------------------------------------------------------------
+[debug] [2026-03-18T18:17:45.072Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\AMIT\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js hosting:sites:list
+[debug] [2026-03-18T18:17:45.072Z] CLI Version:   15.9.1
+[debug] [2026-03-18T18:17:45.072Z] Platform:      win32
+[debug] [2026-03-18T18:17:45.073Z] Node Version:  v22.17.1
+[debug] [2026-03-18T18:17:45.073Z] Time:          Wed Mar 18 2026 23:47:45 GMT+0530 (India Standard Time)
+[debug] [2026-03-18T18:17:45.074Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-03-18T18:17:45.287Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-18T18:17:45.287Z] > authorizing via signed-in user (mr.unkn0wn2485@gmail.com)
+[debug] [2026-03-18T18:17:45.288Z] [iam] checking project crafty-sanctum-456403-f1 for permissions ["firebase.projects.get","firebasehosting.sites.get"]
+[debug] [2026-03-18T18:17:45.288Z] Checked if tokens are valid: true, expires at: 1773860381160
+[debug] [2026-03-18T18:17:45.288Z] Checked if tokens are valid: true, expires at: 1773860381160
+[debug] [2026-03-18T18:17:45.289Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/crafty-sanctum-456403-f1:testIamPermissions [none]
+[debug] [2026-03-18T18:17:45.289Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/crafty-sanctum-456403-f1:testIamPermissions  x-goog-user-project=crafty-sanctum-456403-f1
+[debug] [2026-03-18T18:17:45.289Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/crafty-sanctum-456403-f1:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.get"]}

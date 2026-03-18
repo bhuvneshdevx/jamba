@@ -105,16 +105,14 @@
     <!-- Footer -->
     <app-footer></app-footer>
 
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-    <script src="firebase-config.js"></script>
+    <script type="module" src="supabase-config.js"></script>
     <script src="js/components/Navbar.js" defer></script>
     <script src="js/components/Footer.js" defer></script>
     
     <script type="module">
         import { NEXSTUDY_DATA } from './js/modules/data.js';
         import { initApp, getParam, ordinal } from './js/modules/app.js';
+        import { supabase } from './supabase-config.js';
 
         let currentResources = [];
         let customResourceTypes = [
@@ -162,16 +160,17 @@
 
             // Load custom subjects
             try {
-                const snap = await db.collection('custom_subjects').get();
-                snap.forEach(doc => {
-                    const cs = doc.data();
+                const { data: snap, error } = await supabase.from('custom_subjects').select('*');
+                if (snap) {
+                    snap.forEach(cs => {
                     const y = NEXSTUDY_DATA.years[cs.year];
                     if (y && y.semesters[cs.semester]) {
                         if (!y.semesters[cs.semester].subjects.find(s => s.id === cs.id)) {
                             y.semesters[cs.semester].subjects.push({ id: cs.id, name: cs.name, code: cs.code, icon: cs.icon, resources: [] });
                         }
                     }
-                });
+                    });
+                }
             } catch(e) { console.error('Error loading custom subjects', e); }
 
             const year = NEXSTUDY_DATA.years[yearNum];
@@ -185,13 +184,14 @@
 
             // Load custom resource types
             try {
-                const typesSnap = await db.collection('resource_types').get();
-                typesSnap.forEach(doc => {
-                    const d = doc.data();
+                const { data: typesSnap, error } = await supabase.from('resource_types').select('*');
+                if (typesSnap) {
+                    typesSnap.forEach(d => {
                     if (!customResourceTypes.find(t => t.id === d.id)) {
                         customResourceTypes.push(d);
                     }
-                });
+                    });
+                }
             } catch (err) { console.error('Error loading types', err); }
 
             // Render filter buttons dynamically
@@ -213,20 +213,22 @@
             document.getElementById('pageTitle').innerHTML = `${subject.icon} ${subject.name}`;
             document.getElementById('pageDesc').textContent = `${subject.code} • ${yearOrdinal} Year • ${semester.name}`;
 
-            // Load resources from Firestore
+            // Load resources from Supabase
             try {
-                const snapshot = await db.collection('resources')
-                    .where('year', '==', yearNum)
-                    .where('semester', '==', semNum)
-                    .where('subjectId', '==', subjectId)
-                    .get();
+                const { data: snapshot, error } = await supabase.from('resources')
+                    .select('*')
+                    .eq('year', yearNum)
+                    .eq('semester', semNum)
+                    .eq('subjectId', subjectId);
 
                 currentResources = [];
-                snapshot.forEach(doc => {
-                    currentResources.push({ id: doc.id, ...doc.data() });
-                });
+                if (snapshot) {
+                    snapshot.forEach(data => {
+                        currentResources.push({ ...data });
+                    });
+                }
 
-                currentResources.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+                currentResources.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
 
                 document.getElementById('pageDesc').textContent =
                     `${subject.code} • ${yearOrdinal} Year • ${semester.name} — ${currentResources.length} resource${currentResources.length !== 1 ? 's' : ''}`;
@@ -276,7 +278,7 @@
 
             grid.innerHTML = filtered.map(resource => {
                 const dateStr = resource.createdAt
-                    ? new Date(resource.createdAt.seconds * 1000).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' })
+                    ? new Date(resource.createdAt).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' })
                     : '';
 
                 return `
