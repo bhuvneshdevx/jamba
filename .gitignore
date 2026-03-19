@@ -1,0 +1,8 @@
+supabase-config.js
+.vercel
+.firebase
+.gemini
+*.log
+node_modules/
+.env
+.env.local

@@ -2,7 +2,7 @@
 
 NexStudy is an advanced, centralized platform engineered specifically for the academic needs of engineering students. It provides a robust, highly performant repository for diverse study materials including typed lecture notes, handwritten topper notes, previous year question papers (PYQs), and detailed syllabi.
 
-The project is architected with a **"Framework-Free, Feature-Rich"** philosophy, utilizing modern ES6+ JavaScript, Web Components, and a serverless backend powered by Firebase and Cloudinary.
+The project is architected with a **"Framework-Free, Feature-Rich"** philosophy, utilizing modern ES6+ JavaScript, Web Components, and a serverless backend powered by **Supabase** (PostgreSQL) and Cloudinary.
 
 ---
 
@@ -16,11 +16,11 @@ The project is architected with a **"Framework-Free, Feature-Rich"** philosophy,
 - **Animations:** Orchestrated via `IntersectionObserver` for scroll-triggered effects and standard CSS `@keyframes`.
 
 ### Backend & Infrastructure
-- **Hosting:** Firebase Hosting (optimized with `cleanUrls`).
-- **Database:** Cloud Firestore (NoSQL) for real-time data persistence.
-- **Authentication:** Firebase Auth (Email/Password) for administrative security.
+- **Hosting:** Vercel (Optimized global edge CDN).
+- **Database:** Supabase (PostgreSQL Postgres database via REST API).
+- **Authentication:** Supabase Auth (Google OAuth & Email/Password).
 - **Media Management:** Cloudinary (for secure file hosting, automatic format optimization, and bandwidth efficiency).
-- **API Integration:** Direct browser-to-Cloudinary uploads via Signed/Unsigned presets.
+- **API Integration:** Direct browser-to-Cloudinary uploads via unsigned presets.
 
 ---
 
@@ -31,17 +31,17 @@ Located at the `:root` of `styles.css`:
 - **Color Palette:**
   - Backgrounds: `--bg-primary: #0a0a0f`, `--bg-secondary: #12121a`.
   - Accents: Indigo (`#6366f1`), Violet (`#8b5cf6`), Pink (`#ec4899`), Emerald (`#10b981`).
-- **Glassmorphism:** Uses `rgba(255, 255, 255, 0.03)` with `backdrop-filter: blur(8px)`.
+- **Glassmorphism:** Deep frosted glass (`backdrop-filter: blur(24px)`) integrated deeply into layout cards.
 - **Typography:** 
-  - Headings: `Outfit` (700+ weight).
+  - Headings: `Outfit` (800-900+ weight) styled with Silicon Valley Brutalist negative letter-spacing.
   - Body: `Inter` (300-900 weight).
 - **Transitions:** Optimized durations from `--transition-fast (0.15s)` to `--transition-spring (0.4s)`.
 
 ### Key UI Features
-- **Dynamic Theming:** Subtle gradient overlays and "orbs" (hero section) create depth.
-- **Interactive States:** Tilt effects on cards, pulse-glow animations, and smooth scroll behaviors.
+- **Dynamic Theming:** Ambient mesh gradients, subtle gradient overlays, and glowing background "orbs".
+- **Interactive States:** "Cinematic Focus" depth-of-field hovering effects, pulse-glow animations, and smooth scrolling.
 - **Custom Components:**
-  - `<app-navbar>`: Sticky, scroll-responsive navigation with integrated search.
+  - `<app-navbar>`: Floating Mac-OS Dock styled navigation responding dynamically to mobile breakpoints.
   - `<app-footer>`: Standardized information and link repository.
 
 ---
@@ -52,11 +52,11 @@ Located at the `:root` of `styles.css`:
 The curriculum is managed through two layers:
 - **Static Baseline (`js/modules/data.js`):** 
   - Defines the `NEXSTUDY_DATA` object.
-  - Hardcoded branches (CSE, ECE, ME, etc.).
-  - Hardcoded core subjects for all 4 years and 8 semesters.
-- **Dynamic Extension (Firestore):**
-  - **`custom_subjects` Collection:** Allows adding new subjects (electives, minor courses) without redeploying code.
-  - **`resources` Collection:** The heart of the app. Stores metadata for every file:
+  - Hardcoded branches and core subjects for all 4 years and 8 semesters.
+- **Dynamic Extension (Supabase Database):**
+  - **`custom_subjects` Table:** Allows adding new subjects (electives, minor courses).
+  - **`resource_types` Table:** Allows custom taxonomies for files.
+  - **`resources` Table:** The heart of the app. Stores metadata for every file:
     ```json
     {
       "title": "Data Structures Unit 1",
@@ -64,20 +64,20 @@ The curriculum is managed through two layers:
       "type": "notes",
       "fileUrl": "cloudinary_url_here",
       "size": "2.4 MB",
-      "createdAt": "serverTimestamp"
+      "created_at": "ISO Timestamp"
     }
     ```
 
 ### 2. Search & Discovery Engine
 Implemented in `js/modules/app.js`:
-- **Flattening Logic:** `getAllSubjects()` and `getAllResources()` functions transform the nested `NEXSTUDY_DATA` into searchable arrays.
+- **Flattening Logic:** `getAllSubjects()` and `getAllResources()` functions transform the nested `NEXSTUDY_DATA` into searchable arrays. *(Note: Global search currently relies on local cached objects).*
 - **Search Algorithm:** Real-time filtering across subject names, codes, and resource titles with debouncing (300ms) and regex-based highlighting.
 
-### 3. Navigation & Routing
+### 3. Core Protection & Routing
+- **Auth Walls:** Study materials routes block unauthenticated guests, redirecting instantly to `login.html`.
 - Uses **URL Query Parameters** to maintain state without a complex SPA router.
   - `?year=X`: Handled by `year.html`.
   - `?subject=ID`: Handled by `subject.html`.
-- **Breadcrumb System:** Dynamically generated based on current URL state.
 
 ---
 
@@ -85,52 +85,36 @@ Implemented in `js/modules/app.js`:
 
 ### Root Files
 - `index.html`: Multi-section landing page with Hero, Features, and Year selection.
-- `year.html`: Renders the semester-wise view for a specific academic year.
-- `subject.html`: The resource discovery page with category filters (Notes, PYQs, etc.).
-- `admin.html`: Secure gateway for content managers.
-- `firebase.json`: Configuration for hosting and clean URL routing.
+- `login.html`: Protected gateway utilizing Google Authentication logic via Supabase Auth.
+- `year.html`: Renders the semester-wise view for a specific academic year (Auth protected).
+- `subject.html`: The resource discovery page with category filters (Auth protected).
+- `admin.html`: Secure gateway for content managers looking for explicit admin emails dynamically embedded.
+- `vercel.json`: Configuration for advanced caching and clean URL handling for Vercel edge deployment.
+- `supabase-config.js`: Core ES module for initializing Database/Auth clients globally.
 
 ### Core Logic (`/js/`)
 - `modules/data.js`: The definitive source for curriculum structure and helper functions.
 - `modules/app.js`: Global app orchestrator (counters, scroll animations, search).
-- `admin/admin-core.js`: Heavy-duty logic for Firebase integration, bulk file processing, and dashboard stats.
-- `components/`: Pure Web Component implementations.
+- `admin/admin-core.js`: Heavy-duty logic for Supabase database integration, bulk file processing, edit modals, and dashboard stats.
+- `components/`: Pure Vanilla Web Component implementations.
 
 ---
 
 ## 🛠️ Administrative & Operational Procedures
 
 ### Content Management (The Admin Panel)
-1. **Login:** Accessible via `admin.html`. Requires valid Firebase Auth credentials.
-2. **Resource Upload:**
-   - Supports **Bulk Upload**.
-   - Integrates with **Cloudinary Upload API**.
-   - Progress tracking via XHR `onprogress` events.
-3. **Curriculum Control:**
-   - Add/Remove "Custom Subjects" to any semester.
-   - Define new "Resource Types" with custom icons.
+1. **Login:** Accessible via `admin.html`. Requires precise match verification embedded via logic checks and strict SQL RLS rules in Supabase.
+2. **Resource Management:**
+   - Supports robust **Bulk Upload** and direct integration with **Cloudinary**.
+   - Ability to modify dynamically stored resources and schemas with editing modals.
+3. **Database Integrity:**
+   - Write requests guarded tightly by PostgreSQL RLS ensuring non-authorized packets are mathematically rejected.
 
 ### Deployment Workflow
-NexStudy is optimized for a **Continuous Integration** feel via Firebase CLI.
+NexStudy uses Vercel for instantaneous serverless edge deployment natively avoiding complex bundle steps.
 ```bash
-# 1. Preview changes locally
-npx serve .
+# 1. Preview changes locally by spinning up an HTTP server
 
-# 2. Synchronize curriculum changes
-# Ensure data.js matches Firestore structure
-
-# 3. Deploy to production
-firebase deploy --only hosting
+# 2. Deploy instantly to production
+npx vercel --prod
 ```
-
----
-
-## 📝 Development Conventions & Best Practices
-
-- **Component Creation:** Always use the `connectedCallback` in custom elements to inject HTML and bind events.
-- **Data Integrity:** When fetching from Firestore, always use `try-catch` blocks and provide fallback UI (empty states).
-- **Styling Standards:**
-  - Use `var()` for all colors and spacing.
-  - Never hardcode hex values outside of the `:root` variables.
-- **Search Optimization:** Ensure all new subjects have a unique `id` and accurate `code` to maintain searchability.
-- **Performance:** Keep file uploads under 50MB (enforced in `admin-core.js`) to ensure fast loading for end-users.

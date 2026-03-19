@@ -123,17 +123,15 @@ function renderResourceTypeList() {
                     <span class="item-label">${t.icon} ${t.name}</span>
                     <span class="item-meta" style="margin-left:8px;">${t.id}</span>
                 </div>
-                <button class="btn-icon delete" data-docid="${t.docId}" data-name="${safe}"
-                    style="width:28px;height:28px;font-size:0.8rem;">✕</button>
+                <div style="display:flex;gap:4px;">
+                    <button class="btn-icon edit-type" onclick='window.openEditTypeModal(${JSON.stringify(t).replace(/'/g, "&#39;")})' style="width:28px;height:28px;font-size:0.8rem;">✏️</button>
+                    <button class="btn-icon delete" onclick="window.deleteType('${t.docId}', '${safe}')" style="width:28px;height:28px;font-size:0.8rem;">✕</button>
+                </div>
             </div>`;
     }).join('');
-
-    list.querySelectorAll('.delete').forEach(btn => {
-        btn.onclick = () => deleteType(btn.dataset.docid, btn.dataset.name);
-    });
 }
 
-async function deleteType(docId, name) {
+window.deleteType = async (docId, name) => {
     if (!docId) { alert('Missing Document ID.'); return; }
     if (!confirm(`Delete type "${name}"?`)) return;
     try {
@@ -142,7 +140,7 @@ async function deleteType(docId, name) {
         renderTypeDropdowns();
         renderResourceTypeList();
     } catch (e) { alert('Error: ' + e.message); }
-}
+};
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // CUSTOM SUBJECTS
@@ -181,19 +179,15 @@ function renderCustomSubjectsList() {
                     <span class="item-label">${s.icon} ${s.name}</span>
                     <span class="item-meta" style="margin-left:8px;">${ord[s.year]} Year • Sem ${s.semester} • ${s.code}</span>
                 </div>
-                <button class="btn-icon delete"
-                    data-docid="${s.docId}" data-id="${s.id}" data-name="${safe}"
-                    data-year="${s.year}" data-sem="${s.semester}"
-                    style="width:28px;height:28px;font-size:0.8rem;">✕</button>
+                <div style="display:flex;gap:4px;">
+                    <button class="btn-icon edit-subj" onclick='window.openEditSubjModal(${JSON.stringify(s).replace(/'/g, "&#39;")})' style="width:28px;height:28px;font-size:0.8rem;">✏️</button>
+                    <button class="btn-icon delete" onclick="window.deleteCustomSubject('${s.docId}', '${s.id}', '${safe}', ${s.year}, ${s.semester})" style="width:28px;height:28px;font-size:0.8rem;">✕</button>
+                </div>
             </div>`;
     }).join('');
-
-    list.querySelectorAll('.delete').forEach(btn => {
-        btn.onclick = () => deleteCustomSubject(btn.dataset.docid, btn.dataset.id, btn.dataset.name, btn.dataset.year, btn.dataset.sem);
-    });
 }
 
-async function deleteCustomSubject(docId, id, name, year, sem) {
+window.deleteCustomSubject = async (docId, id, name, year, sem) => {
     if (!docId) { alert('Missing Document ID.'); return; }
     if (!confirm(`Delete subject "${name}"?`)) return;
     try {
@@ -206,7 +200,7 @@ async function deleteCustomSubject(docId, id, name, year, sem) {
         }
         renderCustomSubjectsList();
     } catch (e) { alert('Error: ' + e.message); }
-}
+};
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // FILE SELECTION
@@ -445,6 +439,112 @@ function initSettingsManagement() {
             addSubjBtn.disabled = false; addSubjBtn.textContent = 'Add Subject';
         });
     }
+    // EDIT RESOURCE TYPE LOGIC
+    window.openEditTypeModal = t => {
+        if ($('editTypeDocId')) $('editTypeDocId').value = t.docId;
+        if ($('editTypeId'))    $('editTypeId').value    = t.id;
+        if ($('editTypeNameInput')) $('editTypeNameInput').value = t.name;
+        if ($('editTypeIconInput')) $('editTypeIconInput').value = t.icon;
+        if ($('editTypeError')) $('editTypeError').style.display = 'none';
+        if ($('editTypeModal')) $('editTypeModal').classList.add('active');
+    };
+
+    const saveTypeBtn = $('saveEditTypeBtn');
+    if (saveTypeBtn) {
+        saveTypeBtn.addEventListener('click', async () => {
+            const docId = $('editTypeDocId').value, id = $('editTypeId').value;
+            const name = $('editTypeNameInput').value.trim(), icon = $('editTypeIconInput').value.trim() || '📎';
+            if (!name) return showError($('editTypeError'), 'Name is required.');
+            saveTypeBtn.disabled = true; saveTypeBtn.innerHTML = '<span class="loading-spinner"></span>';
+            try {
+                await supabase.from('resource_types').update({ name, icon }).eq('id', docId);
+                const t = resourceTypes.find(x => x.docId === docId);
+                if (t) Object.assign(t, { name, icon });
+                renderTypeDropdowns(); renderResourceTypeList();
+                if ($('editTypeModal')) $('editTypeModal').classList.remove('active');
+            } catch (e) { showError($('editTypeError'), e.message); }
+            saveTypeBtn.disabled = false; saveTypeBtn.textContent = 'Save Changes';
+        });
+    }
+
+    const tModal = $('editTypeModal');
+    if (tModal) tModal.addEventListener('click', e => { if (e.target === tModal) tModal.classList.remove('active'); });
+
+    // EDIT CUSTOM SUBJECT LOGIC
+    window.openEditSubjModal = s => {
+        if ($('editSubjDocId')) $('editSubjDocId').value = s.docId;
+        if ($('editSubjId'))    $('editSubjId').value    = s.id;
+        if ($('editSubjOldYear')) $('editSubjOldYear').value = s.year;
+        if ($('editSubjOldSem')) $('editSubjOldSem').value = s.semester;
+        
+        if ($('editSubjYearSel')) $('editSubjYearSel').value = s.year;
+        const semEl = $('editSubjSemSel');
+        const y = s.year;
+        semEl.innerHTML = '<option value="">Select Semester</option>';
+        if (NEXSTUDY_DATA.years[y]) {
+            for (const [n, sem] of Object.entries(NEXSTUDY_DATA.years[y].semesters)) {
+                semEl.innerHTML += `<option value="${n}">${sem.name}</option>`;
+            }
+        }
+        semEl.value = s.semester;
+        
+        if ($('editSubjNameInput')) $('editSubjNameInput').value = s.name;
+        if ($('editSubjCodeInput')) $('editSubjCodeInput').value = s.code;
+        if ($('editSubjIconInput')) $('editSubjIconInput').value = s.icon;
+        
+        if ($('editSubjError')) $('editSubjError').style.display = 'none';
+        if ($('editSubjModal')) $('editSubjModal').classList.add('active');
+    };
+    
+    if ($('editSubjYearSel')) {
+        $('editSubjYearSel').addEventListener('change', () => {
+            const semEl = $('editSubjSemSel');
+            const y = $('editSubjYearSel').value;
+            semEl.innerHTML = '<option value="">Select Semester</option>';
+            if (y && NEXSTUDY_DATA.years[y]) {
+                for (const [n, sem] of Object.entries(NEXSTUDY_DATA.years[y].semesters)) {
+                    semEl.innerHTML += `<option value="${n}">${sem.name}</option>`;
+                }
+            }
+        });
+    }
+
+    const saveSubjBtn = $('saveEditSubjBtn');
+    if (saveSubjBtn) {
+        saveSubjBtn.addEventListener('click', async () => {
+            const docId = $('editSubjDocId').value, id = $('editSubjId').value;
+            const oldYear = parseInt($('editSubjOldYear').value), oldSem = parseInt($('editSubjOldSem').value);
+            const year = parseInt($('editSubjYearSel').value), semester = parseInt($('editSubjSemSel').value);
+            const name = $('editSubjNameInput').value.trim(), code = $('editSubjCodeInput').value.trim(), icon = $('editSubjIconInput').value.trim() || '📖';
+            
+            if (!year || !semester || !name || !code) return showError($('editSubjError'), 'All fields are required.');
+            
+            saveSubjBtn.disabled = true; saveSubjBtn.innerHTML = '<span class="loading-spinner"></span>';
+            try {
+                await supabase.from('custom_subjects').update({ name, code, icon, year, semester }).eq('id', docId);
+                
+                const sIndex = customSubjects.findIndex(x => x.docId === docId);
+                if (sIndex !== -1) customSubjects[sIndex] = { ...customSubjects[sIndex], name, code, icon, year, semester };
+                
+                const oldSemObj = NEXSTUDY_DATA.years[oldYear]?.semesters[oldSem];
+                if (oldSemObj) {
+                    oldSemObj.subjects = oldSemObj.subjects.filter(x => x.id !== id);
+                }
+                const newSemObj = NEXSTUDY_DATA.years[year]?.semesters[semester];
+                if (newSemObj) {
+                    newSemObj.subjects.push({ id, name, code, icon, resources: [] });
+                }
+                if ($('resYear')) $('resYear').dispatchEvent(new Event('change'));
+                
+                renderCustomSubjectsList();
+                if ($('editSubjModal')) $('editSubjModal').classList.remove('active');
+            } catch (e) { showError($('editSubjError'), e.message); }
+            saveSubjBtn.disabled = false; saveSubjBtn.textContent = 'Save Changes';
+        });
+    }
+
+    const sModal = $('editSubjModal');
+    if (sModal) sModal.addEventListener('click', e => { if (e.target === sModal) sModal.classList.remove('active'); });
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

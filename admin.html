@@ -641,18 +641,23 @@
                 <div class="dashboard-layout">
                     <div class="dashboard-main">
                         <h3 class="dashboard-section-title">Quick Actions</h3>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 40px;">
-                            <button class="btn btn-glass" onclick="document.querySelector('[data-tab=upload]').click()" style="justify-content: center;">
+                        <div
+                            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 40px;">
+                            <button class="btn btn-glass" onclick="document.querySelector('[data-tab=upload]').click()"
+                                style="justify-content: center;">
                                 <span>➕ Upload New</span>
                             </button>
-                            <button class="btn btn-glass" onclick="document.querySelector('[data-tab=manage]').click()" style="justify-content: center;">
+                            <button class="btn btn-glass" onclick="document.querySelector('[data-tab=manage]').click()"
+                                style="justify-content: center;">
                                 <span>📝 Edit Resources</span>
                             </button>
-                            <button class="btn btn-glass" onclick="document.querySelector('[data-tab=settings]').click()" style="justify-content: center;">
+                            <button class="btn btn-glass"
+                                onclick="document.querySelector('[data-tab=settings]').click()"
+                                style="justify-content: center;">
                                 <span>⚙️ Add Subject</span>
                             </button>
                         </div>
-                        
+
                         <h3 class="dashboard-section-title">Recently Added</h3>
                         <div class="resource-list" id="recentList">
                             <!-- Populated via loadResources -->
@@ -676,7 +681,8 @@
             <div class="tab-content" id="tab-manage">
                 <div class="resource-manager-header">
                     <div class="search-filters">
-                        <input type="text" id="searchResources" class="form-input" placeholder="Search by title or subject..." style="flex: 2;">
+                        <input type="text" id="searchResources" class="form-input"
+                            placeholder="Search by title or subject..." style="flex: 2;">
                         <select id="filterYear" class="form-input">
                             <option value="">All Years</option>
                             <option value="1">1st Year</option>
@@ -774,12 +780,13 @@
                         <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 20px;">
                             Define categories for your uploads (e.g. PYQs, Notes).
                         </p>
-                        
+
                         <div id="typeError" class="error-msg"></div>
                         <div id="typeSuccess" class="success-msg"></div>
 
                         <div class="form-row" style="grid-template-columns: 1fr 80px auto;">
-                            <input type="text" id="newTypeName" class="form-input" placeholder="Type Name (e.g. Lab Manual)">
+                            <input type="text" id="newTypeName" class="form-input"
+                                placeholder="Type Name (e.g. Lab Manual)">
                             <input type="text" id="newTypeIcon" class="form-input" placeholder="Icon" value="📄">
                             <button id="addTypeBtn" class="btn btn-primary">Add</button>
                         </div>
@@ -831,7 +838,7 @@
         <div class="modal-card">
             <h3 class="dashboard-section-title">Edit Resource</h3>
             <div id="editError" class="error-msg"></div>
-            
+
             <input type="hidden" id="editId">
             <div class="form-group">
                 <label>Title</label>
@@ -845,112 +852,194 @@
                 <label>Description (Optional)</label>
                 <textarea id="editDesc" class="form-input"></textarea>
             </div>
-            
+
             <div class="form-row" style="margin-top: 24px;">
-                <button class="btn btn-glass" onclick="document.getElementById('editModal').classList.remove('active')">Cancel</button>
+                <button class="btn btn-glass"
+                    onclick="document.getElementById('editModal').classList.remove('active')">Cancel</button>
                 <button id="saveEditBtn" class="btn btn-primary">Save Changes</button>
             </div>
         </div>
     </div>
 
-    <app-footer></app-footer>
+    <!-- Edit Resource Type Modal -->
+    <div class="modal-overlay" id="editTypeModal">
+        <div class="modal-card">
+            <h3 class="dashboard-section-title">Edit Resource Type</h3>
+            <div id="editTypeError" class="error-msg"></div>
 
-    <script type="module" src="supabase-config.js"></script>
+            <input type="hidden" id="editTypeDocId">
+            <input type="hidden" id="editTypeId">
+            <div class="form-group">
+                <label>Name</label>
+                <input type="text" id="editTypeNameInput" class="form-input">
+            </div>
+            <div class="form-group">
+                <label>Icon</label>
+                <input type="text" id="editTypeIconInput" class="form-input">
+            </div>
 
-    <!-- Web Components -->
-    <script src="js/components/Navbar.js" defer></script>
-    <script src="js/components/Footer.js" defer></script>
+            <div class="form-row" style="margin-top: 24px;">
+                <button class="btn btn-glass"
+                    onclick="document.getElementById('editTypeModal').classList.remove('active')">Cancel</button>
+                <button id="saveEditTypeBtn" class="btn btn-primary">Save Changes</button>
+            </div>
+        </div>
+    </div>
 
-    <!--
+    <!-- Edit Custom Subject Modal -->
+    <div class="modal-overlay" id="editSubjModal">
+        <div class="modal-card">
+            <h3 class="dashboard-section-title">Edit Custom Subject</h3>
+            <div id="editSubjError" class="error-msg"></div>
+
+            <input type="hidden" id="editSubjDocId">
+            <input type="hidden" id="editSubjId">
+            <input type="hidden" id="editSubjOldYear">
+            <input type="hidden" id="editSubjOldSem">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Year</label>
+                    <select id="editSubjYearSel" class="form-input">
+                        <option value="1">1st</option>
+                        <option value="2">2nd</option>
+                        <option value="3">3rd</option>
+                        <option value="4">4th</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Semester</label>
+                    <select id="editSubjSemSel" class="form-input">
+                        <!-- populated dynamically -->
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Name</label>
+                <input type="text" id="editSubjNameInput" class="form-input">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Code</label>
+                    <input type="text" id="editSubjCodeInput" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label>Icon</label>
+                    <input type="text" id="editSubjIconInput" class="form-input">
+                </div>
+            </div>
+
+            <div class="form-row" style="margin-top: 24px;">
+                <button class="btn btn-glass"
+                    onclick="document.getElementById('editSubjModal').classList.remove('active')">Cancel</button>
+                <button id="saveEditSubjBtn" class="btn btn-primary">Save Changes</button>
+            </div>
+        </div>
+
+        <app-footer></app-footer>
+
+        <script type="module" src="supabase-config.js"></script>
+
+        <!-- Web Components -->
+        <script src="js/components/Navbar.js" defer></script>
+        <script src="js/components/Footer.js" defer></script>
+
+        <!--
         Auth bootstrap
     -->
-    <script type="module">
-        import { supabase } from './supabase-config.js';
+        <script type="module">
+            import { supabase } from './supabase-config.js';
 
-        // Wait for the DOM to be ready before wiring up UI
-        document.addEventListener('DOMContentLoaded', async function () {
+            // Wait for the DOM to be ready before wiring up UI
+            document.addEventListener('DOMContentLoaded', async function () {
 
-            var loginScreen = document.getElementById('loginScreen');
-            var adminPanel  = document.getElementById('adminPanel');
-            var loginBtn    = document.getElementById('loginBtn');
-            var logoutBtn   = document.getElementById('logoutBtn');
-            var emailInput  = document.getElementById('email');
-            var passInput   = document.getElementById('password');
-            var errorDiv    = document.getElementById('loginError');
+                var loginScreen = document.getElementById('loginScreen');
+                var adminPanel = document.getElementById('adminPanel');
+                var loginBtn = document.getElementById('loginBtn');
+                var logoutBtn = document.getElementById('logoutBtn');
+                var emailInput = document.getElementById('email');
+                var passInput = document.getElementById('password');
+                var errorDiv = document.getElementById('loginError');
 
-            // Flag so we only load the admin module once
-            var adminLoaded = false;
+                // Flag so we only load the admin module once
+                var adminLoaded = false;
 
-            function showErr(msg) {
-                errorDiv.textContent   = msg;
-                errorDiv.style.display = 'block';
-            }
+                function showErr(msg) {
+                    errorDiv.textContent = msg;
+                    errorDiv.style.display = 'block';
+                }
 
-            // ----- Auth state observer -----
-            supabase.auth.onAuthStateChange(function (event, session) {
-                var user = session?.user;
-                if (user) {
-                    loginScreen.style.display = 'none';
-                    adminPanel.style.display  = 'block';
+                // ----- Auth state observer -----
+                supabase.auth.onAuthStateChange(function (event, session) {
+                    var user = session?.user;
+                    if (user) {
+                        // Check if user is an admin
+                        var adminEmails = ['linearequation2485@gmail.com', 'admin@nexstudy.com', 'mr.unkn0wn2485@gmail.com'];
+                        if (!adminEmails.includes(user.email)) {
+                            showErr('Access Denied: You do not have permission to view the admin dashboard.');
+                            supabase.auth.signOut();
+                            return;
+                        }
 
-                    // Set user info if elements exist
-                    var emailEl   = document.getElementById('userEmail');
-                    var initialEl = document.getElementById('userInitial');
-                    if (emailEl)   emailEl.textContent   = user.email;
-                    if (initialEl) initialEl.textContent = user.email.charAt(0).toUpperCase();
+                        loginScreen.style.display = 'none';
+                        adminPanel.style.display = 'block';
 
-                    // Lazily import and initialise the full admin panel module
-                    if (!adminLoaded) {
-                        adminLoaded = true;
-                        import('./js/admin/admin-core.js').then(function (mod) {
-                            mod.initAdmin();
-                        }).catch(function (err) {
-                            console.error('Failed to load admin module:', err);
-                            alert('Admin panel failed to load: ' + err.message);
-                        });
+                        // Set user info if elements exist
+                        var emailEl = document.getElementById('userEmail');
+                        var initialEl = document.getElementById('userInitial');
+                        if (emailEl) emailEl.textContent = user.email;
+                        if (initialEl) initialEl.textContent = user.email.charAt(0).toUpperCase();
+
+                        // Lazily import and initialise the full admin panel module
+                        if (!adminLoaded) {
+                            adminLoaded = true;
+                            import('./js/admin/admin-core.js').then(function (mod) {
+                                mod.initAdmin();
+                            }).catch(function (err) {
+                                console.error('Failed to load admin module:', err);
+                                alert('Admin panel failed to load: ' + err.message);
+                            });
+                        }
+                    } else {
+                        loginScreen.style.display = 'block';
+                        adminPanel.style.display = 'none';
                     }
-                } else {
-                    loginScreen.style.display = 'block';
-                    adminPanel.style.display  = 'none';
+                });
+
+                // ----- Sign-in button -----
+                loginBtn.addEventListener('click', function () {
+                    var email = emailInput.value.trim();
+                    var pass = passInput.value;
+
+                    errorDiv.style.display = 'none';
+                    if (!email || !pass) { showErr('Enter your email and password.'); return; }
+
+                    loginBtn.disabled = true;
+                    loginBtn.textContent = 'Signing in…';
+
+                    supabase.auth.signInWithPassword({ email: email, password: pass })
+                        .then(function (res) {
+                            if (res.error) throw res.error;
+                        })
+                        .catch(function (e) {
+                            showErr(e.message);
+                            loginBtn.disabled = false;
+                            loginBtn.textContent = 'Sign In';
+                        });
+                });
+
+                // Allow pressing Enter in password field to submit
+                passInput.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter') loginBtn.click();
+                });
+
+                // ----- Logout button -----
+                if (logoutBtn) {
+                    logoutBtn.addEventListener('click', function () {
+                        supabase.auth.signOut();
+                    });
                 }
             });
-
-            // ----- Sign-in button -----
-            loginBtn.addEventListener('click', function () {
-                var email = emailInput.value.trim();
-                var pass  = passInput.value;
-
-                errorDiv.style.display = 'none';
-                if (!email || !pass) { showErr('Enter your email and password.'); return; }
-
-                loginBtn.disabled     = true;
-                loginBtn.textContent  = 'Signing in…';
-
-                supabase.auth.signInWithPassword({ email: email, password: pass })
-                    .then(function(res) {
-                        if(res.error) throw res.error;
-                    })
-                    .catch(function (e) {
-                        showErr(e.message);
-                        loginBtn.disabled    = false;
-                        loginBtn.textContent = 'Sign In';
-                    });
-            });
-
-            // Allow pressing Enter in password field to submit
-            passInput.addEventListener('keydown', function (e) {
-                if (e.key === 'Enter') loginBtn.click();
-            });
-
-            // ----- Logout button -----
-            if (logoutBtn) {
-                logoutBtn.addEventListener('click', function () {
-                    supabase.auth.signOut();
-                });
-            }
-        });
-    </script>
+        </script>
 </body>
 
 </html>
-

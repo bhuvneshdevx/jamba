@@ -46,6 +46,7 @@ class Navbar extends HTMLElement {
 
         if (!isAdmin) {
             this.highlightActiveLink();
+            this.loadAuthUI();
         }
     }
 
@@ -58,6 +59,42 @@ class Navbar extends HTMLElement {
                 link.classList.add('active');
             }
         });
+    }
+
+    async loadAuthUI() {
+        try {
+            const { supabase } = await import('../../supabase-config.js');
+            const { data: { session } } = await supabase.auth.getSession();
+            
+            const searchBox = this.querySelector('.search-box');
+            if (!searchBox) return;
+
+            const authDiv = document.createElement('div');
+            authDiv.style.marginLeft = '16px';
+            authDiv.style.display = 'flex';
+            authDiv.style.alignItems = 'center';
+
+            if (session) {
+                authDiv.innerHTML = `
+                    <div style="width: 32px; height: 32px; background: var(--accent-1); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer;" id="navAvatar" title="Logged in as ${session.user.email} (Click to logout)">
+                        ${session.user.email.charAt(0).toUpperCase()}
+                    </div>
+                `;
+                authDiv.querySelector('#navAvatar').addEventListener('click', async () => {
+                    if(confirm('Log out?')) {
+                        await supabase.auth.signOut();
+                        window.location.replace('index.html');
+                    }
+                });
+            } else {
+                authDiv.innerHTML = `
+                    <a href="login.html" class="btn btn-primary" style="padding: 8px 16px; font-size: 0.85rem;">Sign In</a>
+                `;
+            }
+            searchBox.parentNode.insertBefore(authDiv, searchBox.nextSibling);
+        } catch (e) {
+            console.error('Navbar Auth UI Error:', e);
+        }
     }
 }
 

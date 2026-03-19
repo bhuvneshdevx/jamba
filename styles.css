@@ -135,9 +135,10 @@ img {
 
 .section-title {
     font-family: var(--font-heading);
-    font-size: clamp(1.8rem, 4vw, 2.8rem);
-    font-weight: 700;
-    line-height: 1.2;
+    font-size: clamp(2.2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.04em;
     margin-bottom: var(--space-md);
 }
 
@@ -196,21 +197,27 @@ img {
    ============================================= */
 .navbar {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 95%;
+    max-width: 1200px;
     z-index: 1000;
-    padding: var(--space-md) 0;
+    padding: 12px 0;
     transition: all var(--transition-base);
-    background: transparent;
+    background: rgba(10, 10, 15, 0.65);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--border-color);
+    border-radius: 100px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
 }
 
 .navbar.scrolled {
-    background: rgba(10, 10, 15, 0.85);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--border-color);
-    padding: var(--space-sm) 0;
+    background: rgba(10, 10, 15, 0.9);
+    padding: 10px 0;
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
 }
 
 .nav-container {
@@ -514,10 +521,10 @@ img {
 
 .hero-title {
     font-family: var(--font-heading);
-    font-size: clamp(2.5rem, 6vw, 4.5rem);
-    font-weight: 800;
-    line-height: 1.1;
-    letter-spacing: -0.02em;
+    font-size: clamp(3rem, 7vw, 5.5rem);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -0.05em;
     margin-bottom: var(--space-xl);
 }
 
@@ -1395,18 +1402,45 @@ img {
 }
 
 @media (max-width: 768px) {
+    .navbar {
+        top: 0;
+        left: 0;
+        width: 100%;
+        max-width: none;
+        transform: none;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+        border-top: none;
+        background: rgba(10, 10, 15, 0.95);
+        padding: 8px 0;
+    }
+
+    .nav-container {
+        gap: var(--space-sm);
+    }
+
+    .nav-logo .logo-text {
+        display: none; /* Hide 'NexStudy' text to save space, show only icon */
+    }
+
+    .nav-actions {
+        gap: 8px;
+    }
+
     .nav-links {
         display: none;
         position: fixed;
-        top: 0;
+        top: 60px;
         left: 0;
         right: 0;
         bottom: 0;
         background: var(--bg-primary);
         flex-direction: column;
-        justify-content: center;
+        justify-content: flex-start;
+        padding-top: 40px;
         align-items: center;
-        gap: var(--space-lg);
+        gap: var(--space-xl);
         z-index: 999;
     }
 
@@ -1436,11 +1470,18 @@ img {
     }
 
     .search-box input {
-        width: 160px;
+        width: 140px; /* Shorter for phone */
+        padding-left: 12px;
     }
 
     .search-box input:focus {
-        width: 200px;
+        width: 180px;
+        position: relative;
+        z-index: 50; /* Pop over other items */
+    }
+
+    .page-header {
+        padding: 100px 0 var(--space-2xl); /* Less top padding */
     }
 
     .search-results {
@@ -1499,7 +1540,9 @@ img {
 
 @media (max-width: 480px) {
     .hero-title {
-        font-size: 2rem;
+        font-size: 2.5rem;
+        line-height: 1.1;
+        letter-spacing: -0.03em;
     }
 
     .hero-cta {
