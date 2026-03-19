@@ -22,7 +22,9 @@
         }
     </script>
 </head>
-<body class="page-transition">
+<body class="premium-theme">
+    <!-- Mesh Background -->
+    <div class="mesh-bg"></div>
 
     <!-- Navigation -->
     <app-navbar></app-navbar>
@@ -88,61 +90,88 @@
             }
 
             const year = NEXSTUDY_DATA.years[yearNum];
+            const branchId = getParam('branch');
 
-            // Update page
+            // Handle branching for Years 2, 3, 4
+            if (yearNum > 1 && !branchId) {
+                renderBranchSelection(yearNum, year);
+                return;
+            }
+
+            // Update page header for filtered view
             const yearOrdinal = ordinal(yearNum);
             document.title = `${yearOrdinal} Year — NexStudy`;
-            document.getElementById('yearBreadcrumb').textContent = `${yearOrdinal} Year`;
-            document.getElementById('pageTitle').innerHTML = `${yearOrdinal} Year — <span class="gradient-text">${year.name}</span>`;
-            document.getElementById('pageDesc').textContent = year.description;
+            
+            const breadcrumb = document.getElementById('breadcrumb');
+            if (branchId) {
+                const branch = NEXSTUDY_DATA.branches.find(b => b.id === branchId);
+                const branchName = branch ? branch.name : branchId.toUpperCase();
+                breadcrumb.innerHTML = `
+                    <a href="index.html">Home</a>
+                    <span class="separator">/</span>
+                    <a href="year.html?year=${yearNum}">${yearOrdinal} Year</a>
+                    <span class="separator">/</span>
+                    <span class="current">${branchName}</span>
+                `;
+                document.getElementById('pageTitle').innerHTML = `${yearOrdinal} Year — <span class="gradient-text">${branchName}</span>`;
+                document.getElementById('pageDesc').textContent = `Explore resources for ${branchName} specialization.`;
+            } else {
+                document.getElementById('yearBreadcrumb').textContent = `${yearOrdinal} Year`;
+                document.getElementById('pageTitle').innerHTML = `${yearOrdinal} Year — <span class="gradient-text">${year.name}</span>`;
+                document.getElementById('pageDesc').textContent = year.description;
+            }
 
-            // Get resource counts from Supabase for this year
+            // Get resource counts from Supabase for this year (filtered by branch if applicable)
             let resourceCounts = {};
             try {
-                const { data: snapshot, error } = await supabase.from('resources')
-                    .select('subjectId, type')
-                    .eq('year', yearNum);
+                let query = supabase.from('resources').select('subjectId, type').eq('year', yearNum);
+                if (branchId) query = query.eq('branch', branchId);
+                
+                const { data: snapshot } = await query;
 
                 if (snapshot) {
                     snapshot.forEach(data => {
-                    const key = `${data.subjectId}-${data.type}`;
-                    if (!resourceCounts[data.subjectId]) {
-                        resourceCounts[data.subjectId] = { total: 0, notes: 0, handwritten: 0, pyq: 0, syllabus: 0 };
-                    }
-                    resourceCounts[data.subjectId].total++;
-                    if (resourceCounts[data.subjectId][data.type] !== undefined) {
-                        resourceCounts[data.subjectId][data.type]++;
-                    }
+                        if (!resourceCounts[data.subjectId]) {
+                            resourceCounts[data.subjectId] = { total: 0, notes: 0, handwritten: 0, pyq: 0, syllabus: 0 };
+                        }
+                        resourceCounts[data.subjectId].total++;
+                        if (resourceCounts[data.subjectId][data.type] !== undefined) {
+                            resourceCounts[data.subjectId][data.type]++;
+                        }
                     });
                 }
-            } catch (err) {
-                console.error('Could not load resource counts:', err);
-            }
+            } catch (err) { console.error('Could not load resource counts:', err); }
 
             // Render semesters
             const container = document.getElementById('semesterContent');
             let html = '';
 
             for (const [semNum, semester] of Object.entries(year.semesters)) {
+                // Filter subjects by branch if year > 1
+                const filteredSubjects = yearNum === 1 
+                    ? semester.subjects 
+                    : semester.subjects.filter(s => !s.branches || s.branches.includes(branchId));
+
+                if (filteredSubjects.length === 0) continue;
+
                 html += `
                     <div class="semester-card" id="sem-${semNum}">
                         <div class="semester-card-header">
                             <h3>${semester.name}</h3>
-                            <span class="sem-badge">${semester.subjects.length} Subjects</span>
+                            <span class="sem-badge">${filteredSubjects.length} Subjects</span>
                         </div>
                         <div class="semester-subjects">
                 `;
 
-                semester.subjects.forEach(subject => {
+                filteredSubjects.forEach(subject => {
                     const counts = resourceCounts[subject.id] || { total: 0, notes: 0, handwritten: 0, pyq: 0 };
                     const noteCount = counts.notes + counts.handwritten;
-                    const pyqCount = counts.pyq;
                     const countText = counts.total > 0
-                        ? `${subject.code} • ${noteCount} Notes • ${pyqCount} PYQs`
+                        ? `${subject.code} • ${noteCount} Notes • ${counts.pyq} PYQs`
                         : `${subject.code}`;
 
                     html += `
-                        <a href="subject.html?year=${yearNum}&sem=${semNum}&subject=${subject.id}" class="subject-item">
+                        <a href="subject.html?year=${yearNum}&sem=${semNum}&subject=${subject.id}${branchId ? '&branch='+branchId : ''}" class="subject-item">
                             <div class="subject-item-left">
                                 <div class="subject-icon">${subject.icon}</div>
                                 <div class="subject-info">
@@ -162,8 +191,33 @@
                     </div>
                 `;
             }
-
             container.innerHTML = html;
+
+            function renderBranchSelection(yNum, yObj) {
+                const yearOrdinal = ordinal(yNum);
+                document.title = `Select Branch — ${yearOrdinal} Year`;
+                document.getElementById('yearBreadcrumb').textContent = `${yearOrdinal} Year`;
+                document.getElementById('pageTitle').innerHTML = `${yearOrdinal} Year — <span class="gradient-text">Select Branch</span>`;
+                document.getElementById('pageDesc').textContent = "Choose your engineering discipline to see relevant subjects.";
+
+                const container = document.getElementById('semesterContent');
+                container.className = 'years-grid'; // Reuse the grid style from home
+                
+                let bHtml = '';
+                NEXSTUDY_DATA.branches.forEach(branch => {
+                    bHtml += `
+                        <a href="year.html?year=${yNum}&branch=${branch.id}" class="year-card">
+                            <div class="year-card-bg"></div>
+                            <div class="year-card-content">
+                                <div class="year-icon">${branch.icon}</div>
+                                <h3>${branch.name}</h3>
+                                <p>View curriculum & resources</p>
+                            </div>
+                        </a>
+                    `;
+                });
+                container.innerHTML = bHtml;
+            }
 
             // Scroll to anchor if specified
             const hash = window.location.hash;

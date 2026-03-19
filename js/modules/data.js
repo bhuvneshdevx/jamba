@@ -46,21 +46,21 @@ export const NEXSTUDY_DATA = {
                 3: {
                     name: 'Semester 3',
                     subjects: [
-                        { id: 'math3', name: 'Engineering Mathematics III', code: 'MA201', icon: '📐', resources: [] },
-                        { id: 'dsa', name: 'Data Structures & Algorithms', code: 'CS201', icon: '🌳', resources: [] },
-                        { id: 'oop', name: 'Object-Oriented Programming', code: 'CS202', icon: '☕', resources: [] },
-                        { id: 'deld', name: 'Digital Electronics & Logic Design', code: 'EC201', icon: '🔌', resources: [] },
-                        { id: 'dm', name: 'Discrete Mathematics', code: 'CS203', icon: '🔢', resources: [] },
+                        { id: 'math3', name: 'Engineering Mathematics III', code: 'MA201', icon: '📐', branches: ['cse', 'ece', 'me', 'ce', 'ee', 'it'], resources: [] },
+                        { id: 'dsa', name: 'Data Structures & Algorithms', code: 'CS201', icon: '🌳', branches: ['cse', 'it'], resources: [] },
+                        { id: 'oop', name: 'Object-Oriented Programming', code: 'CS202', icon: '☕', branches: ['cse', 'it'], resources: [] },
+                        { id: 'deld', name: 'Digital Electronics & Logic Design', code: 'EC201', icon: '🔌', branches: ['ece', 'ee', 'cse'], resources: [] },
+                        { id: 'dm', name: 'Discrete Mathematics', code: 'CS203', icon: '🔢', branches: ['cse', 'it'], resources: [] },
                     ]
                 },
                 4: {
                     name: 'Semester 4',
                     subjects: [
-                        { id: 'os', name: 'Operating Systems', code: 'CS301', icon: '🖥️', resources: [] },
-                        { id: 'dbms', name: 'Database Management Systems', code: 'CS302', icon: '🗄️', resources: [] },
-                        { id: 'coa', name: 'Computer Organization & Architecture', code: 'CS303', icon: '🏗️', resources: [] },
-                        { id: 'toc', name: 'Theory of Computation', code: 'CS304', icon: '🤖', resources: [] },
-                        { id: 'maths4', name: 'Numerical Methods & Statistics', code: 'MA202', icon: '📊', resources: [] },
+                        { id: 'os', name: 'Operating Systems', code: 'CS301', icon: '🖥️', branches: ['cse', 'it'], resources: [] },
+                        { id: 'dbms', name: 'Database Management Systems', code: 'CS302', icon: '🗄️', branches: ['cse', 'it'], resources: [] },
+                        { id: 'coa', name: 'Computer Organization & Architecture', code: 'CS303', icon: '🏗️', branches: ['cse', 'it', 'ece'], resources: [] },
+                        { id: 'toc', name: 'Theory of Computation', code: 'CS304', icon: '🤖', branches: ['cse'], resources: [] },
+                        { id: 'maths4', name: 'Numerical Methods & Statistics', code: 'MA202', icon: '📊', branches: ['cse', 'ece', 'me', 'ce', 'ee', 'it'], resources: [] },
                     ]
                 }
             }
@@ -72,20 +72,20 @@ export const NEXSTUDY_DATA = {
                 5: {
                     name: 'Semester 5',
                     subjects: [
-                        { id: 'cn', name: 'Computer Networks', code: 'CS401', icon: '🌐', resources: [] },
-                        { id: 'se', name: 'Software Engineering', code: 'CS402', icon: '📋', resources: [] },
-                        { id: 'daa', name: 'Design & Analysis of Algorithms', code: 'CS403', icon: '⚡', resources: [] },
-                        { id: 'ai', name: 'Artificial Intelligence', code: 'CS404', icon: '🧠', resources: [] },
-                        { id: 'web', name: 'Web Technologies', code: 'CS405', icon: '🕸️', resources: [] },
+                        { id: 'cn', name: 'Computer Networks', code: 'CS401', icon: '🌐', branches: ['cse', 'it', 'ece'], resources: [] },
+                        { id: 'se', name: 'Software Engineering', code: 'CS402', icon: '📋', branches: ['cse', 'it'], resources: [] },
+                        { id: 'daa', name: 'Design & Analysis of Algorithms', code: 'CS403', icon: '⚡', branches: ['cse', 'it'], resources: [] },
+                        { id: 'ai', name: 'Artificial Intelligence', code: 'CS404', icon: '🧠', branches: ['cse', 'it'], resources: [] },
+                        { id: 'web', name: 'Web Technologies', code: 'CS405', icon: '🕸️', branches: ['cse', 'it'], resources: [] },
                     ]
                 },
                 6: {
                     name: 'Semester 6',
                     subjects: [
-                        { id: 'cd', name: 'Compiler Design', code: 'CS501', icon: '🔄', resources: [] },
-                        { id: 'cns', name: 'Cryptography & Network Security', code: 'CS502', icon: '🔒', resources: [] },
-                        { id: 'ml', name: 'Machine Learning', code: 'CS503', icon: '🤖', resources: [] },
-                        { id: 'dc', name: 'Distributed Computing', code: 'CS504', icon: '☁️', resources: [] },
+                        { id: 'cd', name: 'Compiler Design', code: 'CS501', icon: '🔄', branches: ['cse'], resources: [] },
+                        { id: 'cns', name: 'Cryptography & Network Security', code: 'CS502', icon: '🔒', branches: ['cse', 'it'], resources: [] },
+                        { id: 'ml', name: 'Machine Learning', code: 'CS503', icon: '🤖', branches: ['cse', 'it'], resources: [] },
+                        { id: 'dc', name: 'Distributed Computing', code: 'CS504', icon: '☁️', branches: ['cse', 'it'], resources: [] },
                     ]
                 }
             }
@@ -97,19 +97,19 @@ export const NEXSTUDY_DATA = {
                 7: {
                     name: 'Semester 7',
                     subjects: [
-                        { id: 'dl', name: 'Deep Learning', code: 'CS601', icon: '🧠', resources: [] },
-                        { id: 'nlp', name: 'Natural Language Processing', code: 'CS602', icon: '💬', resources: [] },
-                        { id: 'cloud', name: 'Cloud Computing', code: 'CS603', icon: '☁️', resources: [] },
-                        { id: 'tic', name: 'Data Science & Big Data', code: 'CS604', icon: '📊', resources: [] },
+                        { id: 'dl', name: 'Deep Learning', code: 'CS601', icon: '🧠', branches: ['cse', 'it'], resources: [] },
+                        { id: 'nlp', name: 'Natural Language Processing', code: 'CS602', icon: '💬', branches: ['cse', 'it'], resources: [] },
+                        { id: 'cloud', name: 'Cloud Computing', code: 'CS603', icon: '☁️', branches: ['cse', 'it'], resources: [] },
+                        { id: 'tic', name: 'Data Science & Big Data', code: 'CS604', icon: '📊', branches: ['cse', 'it'], resources: [] },
                     ]
                 },
                 8: {
                     name: 'Semester 8',
                     subjects: [
-                        { id: 'blockchain', name: 'Blockchain Technology', code: 'CS701', icon: '⛓️', resources: [] },
-                        { id: 'tic2', name: 'Internet of Things', code: 'CS702', icon: '📱', resources: [] },
-                        { id: 'project', name: 'Final Year Project', code: 'CS703', icon: '🎓', resources: [] },
-                        { id: 'ethics', name: 'Professional Ethics & IPR', code: 'HU701', icon: '⚖️', resources: [] },
+                        { id: 'blockchain', name: 'Blockchain Technology', code: 'CS701', icon: '⛓️', branches: ['cse', 'it'], resources: [] },
+                        { id: 'tic2', name: 'Internet of Things', code: 'CS702', icon: '📱', branches: ['cse', 'it', 'ece'], resources: [] },
+                        { id: 'project', name: 'Final Year Project', code: 'CS703', icon: '🎓', branches: ['cse', 'it', 'ece', 'me', 'ce', 'ee'], resources: [] },
+                        { id: 'ethics', name: 'Professional Ethics & IPR', code: 'HU701', icon: '⚖️', branches: ['cse', 'it', 'ece', 'me', 'ce', 'ee'], resources: [] },
                     ]
                 }
             }

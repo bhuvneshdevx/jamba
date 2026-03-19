@@ -17,11 +17,9 @@ class Navbar extends HTMLElement {
                     </a>
                     ${isAdmin ? '' : `
                     <div class="nav-links" id="navLinks">
-                        <a href="${prefix}index.html" class="nav-link">Home</a>
-                        <a href="${prefix}index.html#years" class="nav-link">Years</a>
-                        <a href="${prefix}index.html#features" class="nav-link">Features</a>
-                        <a href="${prefix}index.html#branches" class="nav-link">Branches</a>
-                        <a href="${prefix}index.html#contact" class="nav-link">Contact</a>
+                        <a href="${isRoot ? '#' : 'index.html'}" class="nav-link">Home</a>
+                        <a href="${isRoot ? '#years' : 'index.html#years'}" class="nav-link">Years</a>
+                        <a href="${isRoot ? '#contact' : 'index.html#contact'}" class="nav-link">Contact</a>
                     </div>
                     `}
                     <div class="nav-actions">
@@ -47,18 +45,78 @@ class Navbar extends HTMLElement {
         if (!isAdmin) {
             this.highlightActiveLink();
             this.loadAuthUI();
+            this.setupLinkEvents();
         }
+    }
+
+    setupLinkEvents() {
+        window.addEventListener('hashchange', () => this.highlightActiveLink());
+        
+        const isRoot = window.location.pathname.endsWith('index.html') || window.location.pathname === '/' || window.location.pathname.endsWith('/');
+        const links = this.querySelectorAll('.nav-link');
+        
+        links.forEach(link => {
+            link.addEventListener('click', (e) => {
+                const href = link.getAttribute('href');
+                
+                // Smooth scroll for same-page anchors
+                if (isRoot && (href.startsWith('#') || href === 'index.html')) {
+                    e.preventDefault();
+                    const targetId = href.startsWith('#') ? href.substring(1) : 'hero';
+                    const target = document.getElementById(targetId) || document.body;
+                    
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth' });
+                        if (href.startsWith('#')) {
+                            window.history.pushState(null, null, href);
+                        } else {
+                            window.history.pushState(null, null, window.location.pathname);
+                        }
+                        this.highlightActiveLink();
+                        
+                        // Close mobile menu if open
+                        const mobileMenu = document.getElementById('navLinks');
+                        const mobileBtn = document.getElementById('mobileMenuBtn');
+                        if (mobileMenu && mobileMenu.classList.contains('active')) {
+                            mobileMenu.classList.remove('active');
+                            mobileBtn.classList.remove('active');
+                        }
+                    }
+                }
+            });
+        });
     }
 
     highlightActiveLink() {
         const currentPath = window.location.pathname;
+        const currentHash = window.location.hash;
         const links = this.querySelectorAll('.nav-link');
+        
         links.forEach(link => {
             link.classList.remove('active');
-            if (link.getAttribute('href') === 'index.html' && (currentPath.endsWith('index.html') || currentPath === '/')) {
+            const href = link.getAttribute('href');
+            
+            // Check if link matches either path or hash
+            const isHomeLink = href === '#' || href === 'index.html';
+            const isHomePage = (currentPath.endsWith('index.html') || currentPath === '/') && !currentHash;
+            
+            let isMatch = false;
+            if (isHomeLink && isHomePage) {
+                isMatch = true;
+            } else if (currentHash && href.includes(currentHash)) {
+                isMatch = true;
+            }
+
+            if (isMatch) {
                 link.classList.add('active');
             }
         });
+
+        // Default to Home if on root with no hash
+        if (!currentHash && (currentPath.endsWith('index.html') || currentPath === '/')) {
+            const homeLink = this.querySelector('a[href$="index.html"]:not([href*="#"])');
+            if (homeLink) homeLink.classList.add('active');
+        }
     }
 
     async loadAuthUI() {
@@ -70,13 +128,11 @@ class Navbar extends HTMLElement {
             if (!searchBox) return;
 
             const authDiv = document.createElement('div');
-            authDiv.style.marginLeft = '16px';
-            authDiv.style.display = 'flex';
-            authDiv.style.alignItems = 'center';
+            authDiv.className = 'nav-auth';
 
             if (session) {
                 authDiv.innerHTML = `
-                    <div style="width: 32px; height: 32px; background: var(--accent-1); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer;" id="navAvatar" title="Logged in as ${session.user.email} (Click to logout)">
+                    <div class="user-avatar" id="navAvatar" title="Logged in as ${session.user.email} (Click to logout)">
                         ${session.user.email.charAt(0).toUpperCase()}
                     </div>
                 `;
@@ -88,7 +144,7 @@ class Navbar extends HTMLElement {
                 });
             } else {
                 authDiv.innerHTML = `
-                    <a href="login.html" class="btn btn-primary" style="padding: 8px 16px; font-size: 0.85rem;">Sign In</a>
+                    <a href="login.html" class="btn btn-primary" style="padding: 6px 14px; font-size: 0.8rem;">Sign In</a>
                 `;
             }
             searchBox.parentNode.insertBefore(authDiv, searchBox.nextSibling);
